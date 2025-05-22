@@ -1,2 +1,44 @@
-<h1>Welcome to SvelteKit</h1>
-<p>Visit <a href="https://svelte.dev/docs/kit">svelte.dev/docs/kit</a> to read the documentation</p>
+<nav>
+<div>
+<img src="/jessielogo.png" alt="jessie logo">
+
+</div>
+</nav>
+<div class="page">
+<h1>About</h1>
+<p>Placeholder</p>
+</div>
+
+<footer></footer>
+
+<style>
+img {
+  height : 90%;
+  
+  object-fit: contain;
+}
+nav {
+  position : fixed;
+  width: 100%;
+  height : 10vh;
+  background-color : black;
+}
+
+div {
+  height : 100%;
+  display : flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+
+.page {
+  padding-top : 10vh;
+}
+
+:global(body) {
+  margin : 0px;
+}
+</style>
+
+<svelte:body/>
