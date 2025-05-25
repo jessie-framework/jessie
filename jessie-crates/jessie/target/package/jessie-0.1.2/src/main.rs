@@ -1,7 +1,6 @@
 use std::env;
 
 mod create_new_project;
-use create_new_project::create_new_project;
 
 fn main() {
     let args: Vec<String> = env::args().collect();

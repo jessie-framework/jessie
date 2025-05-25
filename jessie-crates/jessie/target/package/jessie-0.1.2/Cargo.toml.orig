@@ -1,0 +1,10 @@
+[package]
+name = "jessie"
+version = "0.1.2"
+edition = "2024"
+description = "The cli tool for the Jessie UI framework."
+homepage = "https://jessie.rs"
+license = "MIT"
+repository = "https://github.com/jessie-framework/jessie"
+
+[dependencies]
