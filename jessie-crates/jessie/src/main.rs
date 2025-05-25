@@ -1,7 +1,5 @@
 use std::env;
 
-use create_new_project::create_new_project;
-
 mod create_new_project;
 
 fn main() {

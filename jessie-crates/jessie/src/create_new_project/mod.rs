@@ -14,6 +14,12 @@ pub fn create_new_project(name: &str) {
         .current_dir(Path::new(name))
         .status()
         .expect("failed to add jessie-lib to the newly created crate");
+    Command::new("cargo")
+        .arg("add")
+        .arg("jessie-build")
+        .current_dir(Path::new(name))
+        .status()
+        .expect("failed to add jessie-build to the newly created crate");
     create_file_at_dir(name, "config.ron").expect("failed to create config.ron");
 }
 
