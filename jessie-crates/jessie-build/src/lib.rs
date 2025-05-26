@@ -1,3 +1,4 @@
+use jessie_lib::appinfo::AppInfo;
 use std::path::Path;
 pub fn build() {
     let manifest_dir = std::env::var_os("CARGO_MANIFEST_DIR")

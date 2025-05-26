@@ -28,9 +28,13 @@ dependencies = [
 
 [[package]]
 name = "jessie-lib"
-version = "0.1.1"
+version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f117a4b2c94a3fbb9a027bc7b49fa49f1fc9d328f48aaf075f42b8438f6df83a"
+checksum = "c60abf8157a3bb12a85f15c238d044287fb2b4941e3bb9e5e3e03410e08d09ea"
+dependencies = [
+ "ron",
+ "serde",
+]
 
 [[package]]
 name = "proc-macro2"
