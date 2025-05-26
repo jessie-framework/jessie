@@ -1,1 +1,1 @@
-mod appinfo;
+pub mod appinfo;
