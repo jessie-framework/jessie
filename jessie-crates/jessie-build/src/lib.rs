@@ -1,14 +1,6 @@
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-
-    #[test]
-    fn it_works() {
-        let result = add(2, 2);
-        assert_eq!(result, 4);
-    }
+use std::path::Path;
+pub fn build() {
+    let manifest_dir = std::env::var_os("CARGO_MANIFEST_DIR")
+        .expect("jessie-build : error finding environment variable CARGO_MANIFEST_DIR");
+    let config_ron_dir = Path::new(&manifest_dir).join("config.ron");
 }
