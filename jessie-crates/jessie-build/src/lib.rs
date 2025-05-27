@@ -19,5 +19,6 @@ pub fn build() {
 
     let out_path = Path::new(&out_dir).join("appinfo.rs");
 
-    fs::write(out_path, generated_str);
+    fs::write(out_path, generated_str)
+        .expect("jessie-build : error writing auto generated file appinfo.rs");
 }
