@@ -1,6 +1,6 @@
 [package]
 name = "jessie-build"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2024"
 description = "The library that sets up Jessie apps for build."
 homepage = "https://jessie.rs"
