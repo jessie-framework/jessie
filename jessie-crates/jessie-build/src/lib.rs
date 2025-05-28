@@ -1,5 +1,4 @@
 use jessie_lib::appinfo::AppInfo;
-use std::any::Any;
 use std::fs;
 use std::path::Path;
 pub fn build() {
@@ -21,4 +20,5 @@ pub fn build() {
 
     fs::write(out_path, generated_str)
         .expect("jessie-build : error writing auto generated file appinfo.rs");
+    println!("cargo::rerun-if-changed=config.ron");
 }
