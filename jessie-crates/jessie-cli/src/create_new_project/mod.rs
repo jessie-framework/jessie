@@ -1,4 +1,5 @@
 use std::fs::File;
+use std::fs::write;
 use std::path::Path;
 use std::process::Command;
 
@@ -21,6 +22,12 @@ pub fn create_new_project(name: &str) {
         .status()
         .expect("failed to add jessie-build to the newly created crate");
     create_file_at_dir(name, "config.ron").expect("failed to create config.ron");
+    create_file_at_dir(name, "build.rs").expect("failed to create config.ron");
+    write(
+        Path::new(name).join("build.rs"),
+        include_str!("buildtemplate.rs"),
+    )
+    .expect("failed to write to build.rs");
 }
 
 fn create_file_at_dir(projectname: &str, filename: &str) -> std::io::Result<File> {
