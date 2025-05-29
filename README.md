@@ -38,3 +38,4 @@ I am not promising anything. Apart from being frusturated with my own problems I
 
 [Website](https://www.jessie.rs)
 [GitHub](https://github.com/jessie-framework/jessie)
+[Discord](https://discord.gg/GFBUKTH3XT)
