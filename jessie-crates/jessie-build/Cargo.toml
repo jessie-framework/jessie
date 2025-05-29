@@ -1,6 +1,6 @@
 [package]
 name = "jessie-build"
-version = "0.1.2"
+version = "0.1.3"
 edition = "2024"
 description = "The library that sets up Jessie apps for build."
 homepage = "https://jessie.rs"
@@ -8,6 +8,6 @@ license = "MIT"
 repository = "https://github.com/jessie-framework/jessie"
 
 [dependencies]
-jessie-lib = "0.1.1"
+jessie-lib = "0.1.5"
 ron = "0.10.1"
 serde = { version = "1.0.219", features = ["derive"] }

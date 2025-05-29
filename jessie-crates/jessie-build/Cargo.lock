@@ -19,7 +19,7 @@ dependencies = [
 
 [[package]]
 name = "jessie-build"
-version = "0.1.2"
+version = "0.1.3"
 dependencies = [
  "jessie-lib",
  "ron",
@@ -28,9 +28,9 @@ dependencies = [
 
 [[package]]
 name = "jessie-lib"
-version = "0.1.4"
+version = "0.1.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3ac4016cc57e454d09b87e024f08532498948873857c8058024e16b55cef1057"
+checksum = "a748047f7e93947e5a606279603f4caa5c7545f3f08cb5b338879baa7df44277"
 dependencies = [
  "ron",
  "serde",
