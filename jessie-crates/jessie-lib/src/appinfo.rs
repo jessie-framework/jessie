@@ -4,11 +4,11 @@ use serde::{Deserialize, Serialize};
 ///You can edit it using config.ron at the root of your project.
 #[derive(Deserialize, Serialize, Debug)]
 pub struct AppInfo {
-    linux: LinuxConfig,
-    windows: WindowsConfig,
-    macos: MacOSConfig,
-    android: AndroidConfig,
-    ios: IOSConfig,
+    linux: Option<LinuxConfig>,
+    windows: Option<WindowsConfig>,
+    macos: Option<MacOSConfig>,
+    android: Option<AndroidConfig>,
+    ios: Option<IOSConfig>,
 }
 
 ///A struct for Linux specific configuration.
