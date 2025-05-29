@@ -19,6 +19,21 @@ cargo install jessie
 jessie new project-name
 ```
 
+## FAQ
+
+**Why?**
+
+I was making an app for Linux/Android and had issues with multiple frameworks.
+
+**What's your goal?**
+
+I wanna be able to make all my apps with this framework.
+
+**Why will you succeed?**
+
+I am not promising anything. Apart from being frusturated with my own problems I just enjoy the process of making a new API from scratch.
+
+
 ### Links
 
 [Website](https://www.jessie.rs)
