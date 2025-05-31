@@ -1,4 +1,5 @@
 use std::fs::File;
+use std::fs::remove_file;
 use std::fs::write;
 use std::path::Path;
 use std::process::Command;
@@ -32,6 +33,13 @@ pub fn create_new_project(name: &str) {
         include_str!("buildtemplate.rs"),
     )
     .expect("jessie-build : failed to write to build.rs");
+    remove_file(Path::new(name).join("src").join("main.rs"))
+        .expect("jessie-build : error removing main.rs");
+    write(
+        Path::new(name).join("src").join("main.rs"),
+        include_str!("generatedmain.rs"),
+    )
+    .expect("jessie-build : failed to write to main.rs");
 }
 
 fn create_file_at_dir(projectname: &str, filename: &str) -> std::io::Result<File> {
