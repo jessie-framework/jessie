@@ -1,4 +1,4 @@
-<p><img src="https://github.com/jessie-framework/jessie/blob/e96bfca67dd6e8263c258ae266690b189ffc4d42/jessie-assets/jessielogo.png"></p>
+<p><img src="https://github.com/jessie-framework/jessie/blob/07bc860c5ffee1774471a722cecf2f7e9833b4ad/jessie-assets/jessielogonewfull.png"></p>
 
 # About
 
