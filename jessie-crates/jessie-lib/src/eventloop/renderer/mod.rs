@@ -6,3 +6,14 @@ pub mod miniquad;
 pub trait Renderer {
     fn run();
 }
+
+///Draw calls to the rendering backends.
+pub enum DrawCall {
+    DrawRect {
+        x: u16,
+        y: u16,
+        width: u16,
+        height: u16,
+        color: (u8, u8, u8),
+    },
+}

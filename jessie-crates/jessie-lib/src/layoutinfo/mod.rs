@@ -1,5 +1,5 @@
 ///This struct gives info to Jessie for where to place its components.
-pub struct LayoutInfo;
+pub struct LayoutInfo {}
 
 impl LayoutInfo {
     ///This function is for placing static components on the screen.
