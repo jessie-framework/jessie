@@ -44,13 +44,14 @@ impl<'a> Tokenizer<'a> {
         //This algorithm may be called with an ending code point, which denotes the code point that ends the string. If an ending code point is not specified, the current input code point is used.
 
         //Initially create a <string-token> with its value set to the empty string.
-        let mut out = CSSToken::StringToken { string: "".into() };
+        let mut out = String::new();
         while let Some(v) = self.process.peek() {
             match v {
                 // ending code point :
                 x if *x == code_point => {
                     // Return the <string-token>.
-                    return Ok(out);
+
+                    return Ok(CSSToken::StringToken { string: out });
                 }
 
                 //newline
@@ -73,17 +74,19 @@ impl<'a> Tokenizer<'a> {
 
                         v => {
                             if Self::is_valid_escape(Some('\u{005c}'), Some(*v.unwrap())) {
-                                self.consume_escaped_code_point();
+                                out.push(self.consume_escaped_code_point());
                             }
                         }
                     }
                 }
 
-                _ => {}
+                v => {
+                    out.push(*v);
+                }
             }
         }
         // EOF :  This is a parse error. Return the <string-token>.
-        Ok(out)
+        Ok(CSSToken::StringToken { string: out })
     }
 
     fn peek_twin(&mut self) -> (Option<char>, Option<char>) {
