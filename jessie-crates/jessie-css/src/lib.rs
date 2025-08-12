@@ -48,6 +48,12 @@ impl<'a> Tokenizer<'a> {
                 if v == '\u{0027}' {
                     return self.consume_string_token(v);
                 }
+                if v == '\u{0028}' {
+                    return Ok(CSSToken::LParenToken);
+                }
+                if v == '\u{0029}' {
+                    return Ok(CSSToken::RParenToken);
+                }
                 return Err(CSSError::ParseError);
             }
             None => Ok(CSSToken::EOFToken),
