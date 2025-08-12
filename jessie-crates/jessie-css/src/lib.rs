@@ -25,18 +25,96 @@ impl<'a> Tokenizer<'a> {
             Some(v) => {
                 if Self::is_whitespace(v) {
                     // Consume as much whitespace as possible. Return a <whitespace-token>.
-                    println!("whitespace found!");
                     self.consume_whitespace();
-                    Ok(CSSToken::WhitespaceToken)
-                } else if v == '\u{0022}' {
+                    return Ok(CSSToken::WhitespaceToken);
+                }
+                if v == '\u{0022}' {
                     // Consume a string token and return it.
                     return self.consume_string_token(v);
-                } else {
-                    return Err(CSSError::ParseError);
                 }
+                if v == '\u{0023}' {
+                    let (first, second) = self.peek_twin();
+
+                    if Self::is_ident_code_point(first) || Self::is_valid_escape(first, second) {
+                        let mut flag = HashTokenFlag::Unrestricted;
+                        if self.would_start_ident_sequence() {
+                            flag = HashTokenFlag::Id;
+                        }
+                        let value = self.consume_ident_sequence();
+                        return Ok(CSSToken::HashToken { flag, value });
+                    }
+                    return Ok(CSSToken::DelimToken { value: v });
+                }
+                if v == '\u{0027}' {
+                    return self.consume_string_token(v);
+                }
+                return Err(CSSError::ParseError);
             }
             None => Ok(CSSToken::EOFToken),
         }
+    }
+
+    fn consume_ident_sequence(&mut self) -> String {
+        let mut result = String::new();
+        loop {
+            let (first, second) = self.peek_twin();
+            if let Some(v) = first {
+                if Self::is_ident_code_point(first) {
+                    result.push(first.unwrap());
+                }
+                if Self::is_valid_escape(first, second) {
+                    self.process.next();
+                    result.push(self.consume_escaped_code_point());
+                }
+                return result;
+            }
+        }
+    }
+
+    fn would_start_ident_sequence(&mut self) -> bool {
+        let peek = self.process.peek_amount(3);
+        if let Some(first) = peek[0] {
+            if first == '\u{002d}' {
+                if let Some(second) = peek[1] {
+                    return Self::is_ident_start_code_point(second)
+                        || Self::is_valid_escape(peek[1], peek[2]);
+                }
+            }
+            if Self::is_ident_start_code_point(first) {
+                return true;
+            }
+            if first == '\u{005c}' {
+                return Self::is_valid_escape(peek[0], peek[1]);
+            }
+        }
+        false
+    }
+
+    fn is_ident_code_point(input: Option<char>) -> bool {
+        if let Some(v) = input {
+            return Self::is_ident_start_code_point(v) || Self::is_digit(v) || v == '\u{002d}';
+        }
+        false
+    }
+
+    fn is_ident_start_code_point(input: char) -> bool {
+        Self::is_letter(input) || Self::is_none_ascii(input) || input == '\u{0080}'
+    }
+
+    fn is_letter(input: char) -> bool {
+        Self::is_uppercase_letter(input) || Self::is_lowercase_letter(input)
+    }
+
+    fn is_uppercase_letter(input: char) -> bool {
+        input >= '\u{0041}' && input <= '\u{005a}'
+    }
+
+    fn is_lowercase_letter(input: char) -> bool {
+        input >= '\u{0061}' && input <= '\u{007a}'
+    }
+
+    fn is_none_ascii(input: char) -> bool {
+        input >= '\u{0080}'
     }
 
     fn consume_string_token(&mut self, code_point: char) -> Result<CSSToken, CSSError> {
@@ -265,4 +343,14 @@ pub enum CSSToken {
     WhitespaceToken,
     StringToken { string: String },
     BadStringToken,
+    HashToken { flag: HashTokenFlag, value: String },
+    DelimToken { value: char },
+    LParenToken,
+    RParenToken,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum HashTokenFlag {
+    Id,
+    Unrestricted,
 }
