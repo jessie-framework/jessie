@@ -21,22 +21,21 @@ impl<'a> Tokenizer<'a> {
         // Consume comments.
         self.consume_comments()?;
 
-        //Consume the next input code point.
-        let next = self.process.next();
-
-        if let Some(v) = next {
-            if Self::is_whitespace(v) {
-                // Consume as much whitespace as possible. Return a <whitespace-token>.
-                self.consume_whitespace();
-                return Ok(CSSToken::WhitespaceToken);
-            } else if v == '\u{0022}' {
-                // Consume a string token and return it.
-                return self.consume_string_token(v);
-            } else {
-                return Err(CSSError::ParseError);
+        match self.process.next() {
+            Some(v) => {
+                if Self::is_whitespace(v) {
+                    // Consume as much whitespace as possible. Return a <whitespace-token>.
+                    println!("whitespace found!");
+                    self.consume_whitespace();
+                    Ok(CSSToken::WhitespaceToken)
+                } else if v == '\u{0022}' {
+                    // Consume a string token and return it.
+                    return self.consume_string_token(v);
+                } else {
+                    return Err(CSSError::ParseError);
+                }
             }
-        } else {
-            Ok(CSSToken::EOFToken)
+            None => Ok(CSSToken::EOFToken),
         }
     }
 
@@ -46,10 +45,10 @@ impl<'a> Tokenizer<'a> {
 
         //Initially create a <string-token> with its value set to the empty string.
         let mut out = CSSToken::StringToken { string: "".into() };
-        while let Some(v) = self.process.next() {
+        while let Some(v) = self.process.peek() {
             match v {
                 // ending code point :
-                code_point => {
+                x if *x == code_point => {
                     // Return the <string-token>.
                     return Ok(out);
                 }
@@ -63,14 +62,24 @@ impl<'a> Tokenizer<'a> {
 
                 //U+005C REVERSE SOLIDUS (\)
                 '\u{005c}' => {
-                    match self.process.next() {
+                    match self.process.peek_nth(1) {
                         //If the next input code point is EOF, do nothing.
                         //Otherwise, if the next input code point is a new line , consume it.
-                        None | Some('\n') => {}
+                        None => {}
 
-                        v => if Self::is_valid_escape(Some('\u{005c}'), v) {},
+                        Some('\n') => {
+                            self.process.next();
+                        }
+
+                        v => {
+                            if Self::is_valid_escape(Some('\u{005c}'), Some(*v.unwrap())) {
+                                self.consume_escaped_code_point();
+                            }
+                        }
                     }
                 }
+
+                _ => {}
             }
         }
         // EOF :  This is a parse error. Return the <string-token>.
@@ -84,28 +93,32 @@ impl<'a> Tokenizer<'a> {
         (first, second)
     }
 
-    fn consume_escaped_code_point(&mut self, input: Option<char>) -> char {
-        if let Some(v) = input {
-            if Self::is_hex_digit(v) {
-                let mut count: u8 = 1;
-                let mut code_point = String::new();
-                while count == 5 {
-                    if let Some(v) = self.process.next() {
-                        if Self::is_hex_digit(v) {
-                            code_point.push(v);
-                        } else {
-                            return Self::code_point_to_char(&code_point);
+    fn consume_escaped_code_point(&mut self) -> char {
+        let next = self.process.next();
+        match next {
+            Some(v) => {
+                if Self::is_hex_digit(v) {
+                    let mut out = String::new();
+                    out.push(v);
+                    loop {
+                        let peek = self.process.peek();
+                        match peek {
+                            Some(v) => {
+                                if Self::is_hex_digit(*v) && out.len() != 6 {
+                                    out.push(*v);
+                                }
+                            }
+                            None => return Self::code_point_to_char(&out),
                         }
                     }
-                    count += 1;
+                } else {
+                    return v;
                 }
-
-                return Self::code_point_to_char(&code_point);
-            } else {
-                return v;
+            }
+            None => {
+                return '\u{fffd}';
             }
         }
-        unreachable!()
     }
 
     fn code_point_to_char(input: &str) -> char {
@@ -144,7 +157,12 @@ impl<'a> Tokenizer<'a> {
     }
 
     fn consume_whitespace(&mut self) {
-        while self.consume_token() != Ok(CSSToken::WhitespaceToken) {}
+        while !(self.process.peek().is_none() || Self::is_whitespace(*self.process.peek().unwrap()))
+        {
+            println!("consuming");
+            println!("{:#?}", self.process.peek());
+            self.process.next();
+        }
     }
 
     fn is_whitespace(input: char) -> bool {
@@ -164,7 +182,6 @@ impl<'a> Tokenizer<'a> {
         // If the next two input code point are U+002F SOLIDUS (/) followed by a U+002A ASTERISK (*),
         let (mut first, mut second) = self.peek_twin();
         if !(first == Some('\u{002f}') && second == Some('\u{002a}')) {
-            println!("no comment to be seen here");
             return Ok(());
         }
 
@@ -174,7 +191,7 @@ impl<'a> Tokenizer<'a> {
         loop {
             (first, second) = self.peek_twin();
 
-            if first.is_none() || second.is_none() {
+            if first.is_none() {
                 return Err(CSSError::ParseError);
             }
 
@@ -190,68 +207,17 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
-    fn tokenize(&mut self) -> Vec<CSSToken> {
+    fn tokenize(&mut self) -> Result<Vec<CSSToken>, CSSError> {
         let mut out = vec![];
-        while let Ok(v) = self.consume_token() {
-            if v == CSSToken::EOFToken {
-                out.push(v);
+        loop {
+            let tok = self.consume_token()?;
+            if tok == CSSToken::EOFToken {
+                out.push(CSSToken::EOFToken);
                 break;
             }
-            out.push(v);
+            out.push(tok);
         }
-        out
-    }
-}
-
-#[cfg(test)]
-mod tests2 {
-    use std::hint::assert_unchecked;
-
-    use super::*;
-
-    #[test]
-    fn test_peek_twin() {
-        assert_eq!(Tokenizer::new("ok").peek_twin(), (Some('o'), Some('k')))
-    }
-
-    #[test]
-    fn test_comment_consuming() {
-        assert_eq!(
-            Tokenizer::new("/*this is a comment*/").tokenize(),
-            vec![CSSToken::EOFToken]
-        )
-    }
-
-    // #[test]
-    // fn test_whitespace_token() {
-    //     assert_eq!(
-    //         Tokenizer::new("        ").tokenize(),
-    //         vec![CSSToken::WhitespaceToken, CSSToken::EOFToken]
-    //     )
-    // }
-
-    // #[test]
-    // fn test_comment_and_whitespace() {
-    //     assert_eq!(
-    //         Tokenizer::new("/* this is a comment and the following is whitespace*/     \n\t")
-    //             .tokenize(),
-    //         vec![CSSToken::WhitespaceToken, CSSToken::EOFToken]
-    //     )
-    // }
-
-    #[test]
-    fn test_code_point_to_char() {
-        assert_eq!(Tokenizer::code_point_to_char("1F338"), '\u{1f338}')
-    }
-
-    #[test]
-    fn test_string_token() {
-        assert_eq!(
-            Tokenizer::new("\"hello world!\"").tokenize(),
-            vec![CSSToken::StringToken {
-                string: "hello world!".into()
-            }]
-        )
+        Ok(out)
     }
 }
 

@@ -5,7 +5,7 @@ mod tests {
     fn test_comment_consuming() {
         assert_eq!(
             Tokenizer::new(include_str!("./test.css")).tokenize(),
-            vec![CSSToken::EOFToken]
+            Ok(vec![CSSToken::EOFToken])
         )
     }
 }
