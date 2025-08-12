@@ -48,12 +48,6 @@ impl<'a> Tokenizer<'a> {
         while let Some(v) = self.process.peek() {
             match v {
                 // ending code point :
-                x if *x == code_point => {
-                    // Return the <string-token>.
-
-                    return Ok(CSSToken::StringToken { string: out });
-                }
-
                 //newline
                 '\u{000a}' => {
                     //This is a parse error. Reconsume the current input code point, create a <bad-string-token>, and return it.
@@ -80,8 +74,15 @@ impl<'a> Tokenizer<'a> {
                     }
                 }
 
-                v => {
-                    out.push(*v);
+                x => {
+                    if *x == code_point {
+                        self.process.next();
+                        return Ok(CSSToken::StringToken { string: out });
+                    }
+
+                    out.push(*x);
+                    self.process.next();
+                    // Return the <string-token>.
                 }
             }
         }
