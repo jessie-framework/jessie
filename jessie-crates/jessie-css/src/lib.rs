@@ -98,7 +98,7 @@ impl<'a> Tokenizer<'a> {
         match next {
             Some(v) => {
                 if Self::is_hex_digit(v) {
-                    let mut out = String::new();
+                    let mut out = String::with_capacity(6);
                     out.push(v);
                     loop {
                         let peek = self.process.peek();
@@ -106,6 +106,19 @@ impl<'a> Tokenizer<'a> {
                             Some(v) => {
                                 if Self::is_hex_digit(*v) && out.len() != 6 {
                                     out.push(*v);
+                                    self.process.next();
+                                } else {
+                                    if Self::is_whitespace(*v) {
+                                        self.process.next();
+                                    }
+                                    let interpret = u32::from_str_radix(&out, 16).unwrap();
+                                    if interpret == 0
+                                        || Self::is_surrogate(interpret)
+                                        || interpret > Self::max_allowed_code_point()
+                                    {
+                                        return '\u{fffd}';
+                                    }
+                                    return Self::code_point_to_char(&out);
                                 }
                             }
                             None => return Self::code_point_to_char(&out),
@@ -119,6 +132,22 @@ impl<'a> Tokenizer<'a> {
                 return '\u{fffd}';
             }
         }
+    }
+
+    fn max_allowed_code_point() -> u32 {
+        0x10fff
+    }
+
+    fn is_surrogate(input: u32) -> bool {
+        Self::is_leading_surrogate(input) || Self::is_trailing_surrogate(input)
+    }
+
+    fn is_leading_surrogate(input: u32) -> bool {
+        0xd800 <= input && 0xdbff >= input
+    }
+
+    fn is_trailing_surrogate(input: u32) -> bool {
+        0xdc00 <= input && 0xdfff >= input
     }
 
     fn code_point_to_char(input: &str) -> char {
