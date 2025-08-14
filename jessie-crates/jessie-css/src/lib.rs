@@ -1,5 +1,5 @@
 use peekmore::{PeekMore, PeekMoreIterator};
-use std::{io::repeat, str::Chars};
+use std::str::Chars;
 mod tests;
 
 pub struct Tokenizer<'a> {
@@ -21,18 +21,22 @@ impl<'a> Tokenizer<'a> {
         // Consume comments.
         self.consume_comments()?;
 
-        match self.process.next() {
+        match self.process.peek() {
             Some(v) => {
+                let v = *v;
                 if Self::is_whitespace(v) {
                     // Consume as much whitespace as possible. Return a <whitespace-token>.
+                    self.process.next();
                     self.consume_whitespace();
                     return Ok(CSSToken::WhitespaceToken);
                 }
                 if v == '\u{0022}' {
+                    self.process.next();
                     // Consume a string token and return it.
                     return self.consume_string_token(v);
                 }
                 if v == '\u{0023}' {
+                    self.process.next();
                     let (first, second) = self.peek_twin();
 
                     if Self::is_ident_code_point(first) || Self::is_valid_escape(first, second) {
@@ -46,18 +50,242 @@ impl<'a> Tokenizer<'a> {
                     return Ok(CSSToken::DelimToken { value: v });
                 }
                 if v == '\u{0027}' {
+                    self.process.next();
                     return self.consume_string_token(v);
                 }
                 if v == '\u{0028}' {
+                    self.process.next();
                     return Ok(CSSToken::LParenToken);
                 }
                 if v == '\u{0029}' {
+                    self.process.next();
                     return Ok(CSSToken::RParenToken);
+                }
+                if v == '\u{002b}' {
+                    if self.would_start_number() {
+                        self.process.move_cursor_back();
+                        return Ok(self.consume_numeric_token());
+                    }
                 }
                 return Err(CSSError::ParseError);
             }
             None => Ok(CSSToken::EOFToken),
         }
+    }
+
+    // fn consume_number(&mut self) -> ();
+
+    fn consume_numeric_token(&mut self) -> CSSToken {
+        let mut r#type = NumberType::Integer;
+        let mut repr = String::new();
+        let peek = self.process.peek();
+
+        if let Some(&v) = peek
+            && (v == '\u{002b}' || v == '\u{002d}')
+        {
+            self.process.next();
+            repr.push(v);
+        }
+
+        if let (Some(first), Some(second)) = self.peek_twin()
+            && (first == '\u{002e}' && Self::is_digit(second))
+        {
+            self.process.next();
+            self.process.next();
+            repr.push(first);
+            repr.push(second);
+            r#type = NumberType::Number;
+            while let Some(&val) = self.process.peek()
+                && Self::is_digit(val)
+            {
+                repr.push(val);
+            }
+        }
+
+        if let &[Some(first), Some(second), Some(third)] = self.process.peek_amount(3)
+            && ((Self::is_e(first) && Self::is_digit(second))
+                || (Self::is_e(first) && Self::is_plus_or_minus(second) && Self::is_digit(third)))
+        {
+            self.process.next();
+            self.process.next();
+            repr.push(first);
+            repr.push(second);
+            if Self::is_e(first) && Self::is_plus_or_minus(second) && Self::is_digit(third) {
+                self.process.next();
+                repr.push(third);
+            }
+            r#type = NumberType::Number;
+            while let Some(&val) = self.process.peek()
+                && Self::is_digit(val)
+            {
+                repr.push(val);
+            }
+        }
+
+        CSSToken::WhitespaceToken
+    }
+
+    // fn string_to_number(input: String) -> f64 {
+    //     let s: f64 = {
+    //         let mut val = 1.;
+    //         if input.contains('-') {
+    //             val = -1.;
+    //         }
+    //         val
+    //     };
+    //     let signpos: usize = {
+    //         let mut val = 0;
+    //         if input.contains('-') || input.contains('+') {
+    //             val = 1;
+    //         }
+    //         val
+    //     };
+
+    //     let i: f64 = {
+    //         let mut buf = String::new();
+    //         let mut from = input.chars();
+    //         from.nth(signpos);
+    //         for v in from {
+    //             if v == '\u{002e}' {
+    //                 break;
+    //             }
+
+    //             buf.push(v);
+    //         }
+    //         buf.parse::<f64>().unwrap()
+    //     };
+    //     let (f, d): (f64, f64) = {
+    //         let mut buf = String::new();
+    //         let dotpos = input.find('.');
+    //         if let Some(v) = dotpos {
+    //             let from = input.chars().nth(v);
+    //             for char in from {
+    //                 if !Self::is_digit(char) {
+    //                     break;
+    //                 }
+    //                 buf.push(char);
+    //             }
+    //         }
+    //         (buf.parse::<f64>().unwrap_or(0.), buf.len() as f64)
+    //     };
+    //     let t = s;
+    //     let e: f64 = {
+    //         let mut buf = String::new();
+    //     };
+
+    //     0.
+    // }
+
+    fn string_to_number(input: String) -> f64 {
+        let mut iter = input.chars().peekable();
+        let mut _sign: Option<char> = None;
+        if let Some(&v) = iter.peek()
+            && (v == '\u{002b}' || v == '\u{002d}')
+        {
+            iter.next();
+            _sign = Some(v);
+        }
+        let s: f64 = {
+            match _sign {
+                Some('\u{002d}') => -1.,
+                _ => 1.,
+            }
+        };
+        let mut integer_part = String::new();
+        while let Some(&v) = iter.peek() {
+            if !Self::is_digit(v) {
+                break;
+            }
+            integer_part.push(v);
+            iter.next();
+        }
+        let i = integer_part.parse::<f64>().unwrap_or(0.);
+        let mut _decimal_point = None;
+        if let Some(&v) = iter.peek()
+            && (v == '\u{002e}')
+        {
+            iter.next();
+            _decimal_point = Some(v);
+        }
+
+        let mut fractional_part = String::new();
+        while let Some(&v) = iter.peek() {
+            if !Self::is_digit(v) {
+                break;
+            }
+            fractional_part.push(v);
+            iter.next();
+        }
+
+        let f = fractional_part.parse::<f64>().unwrap_or(0.);
+        let d = fractional_part.len() as f64;
+
+        let mut _exponent_indicator = None;
+        if let Some(&v) = iter.peek()
+            && (v == '\u{0045}' || v == '\u{0065}')
+        {
+            iter.next();
+            _exponent_indicator = Some(v);
+        }
+
+        let mut _exponent_sign = None;
+
+        if let Some(&v) = iter.peek()
+            && (v == '\u{002b}' || v == '\u{002d}')
+        {
+            iter.next();
+            _exponent_sign = Some(v);
+        }
+
+        let t = {
+            match _exponent_sign {
+                Some('\u{002d}') => -1.,
+                _ => 1.,
+            }
+        };
+
+        let mut exponent = String::new();
+        while let Some(&v) = iter.peek() {
+            if !Self::is_digit(v) {
+                break;
+            }
+            exponent.push(v);
+            iter.next();
+        }
+
+        let e = exponent.parse::<f64>().unwrap_or(0.);
+
+        s * (i + (f * 10.0_f64.powf(-d))) * 10.0_f64.powf(t * e)
+    }
+
+    fn is_plus_or_minus(input: char) -> bool {
+        input == '\u{002d}' || input == '\u{002b}'
+    }
+
+    fn is_e(input: char) -> bool {
+        input == '\u{0045}' || input == '\u{0065}'
+    }
+
+    fn would_start_number(&mut self) -> bool {
+        let peek = self.process.peek_amount(3);
+        let first = peek[0];
+        if let Some(v) = first {
+            if v == '\u{002b}' || v == '\u{002d}' {
+                if let Some(second_val) = peek[1]
+                    && Self::is_digit(second_val)
+                {
+                    return true;
+                }
+                if peek[1] == Some('\u{002e}')
+                    && let Some(third_val) = peek[2]
+                    && Self::is_digit(third_val)
+                {
+                    return true;
+                }
+                return false;
+            }
+        }
+        false
     }
 
     fn consume_ident_sequence(&mut self) -> String {
@@ -223,7 +451,7 @@ impl<'a> Tokenizer<'a> {
     }
 
     fn max_allowed_code_point() -> u32 {
-        0x10fff
+        0x10ffff
     }
 
     fn is_surrogate(input: u32) -> bool {
@@ -359,4 +587,16 @@ pub enum CSSToken {
 pub enum HashTokenFlag {
     Id,
     Unrestricted,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub struct Number {
+    value: i64,
+    r#type: NumberType,
+}
+
+#[derive(Debug, PartialEq, Eq)]
+pub enum NumberType {
+    Integer,
+    Number,
 }
