@@ -616,24 +616,56 @@ impl<'a> Tokenizer<'a> {
     }
 
     pub fn would_start_number(&mut self) -> bool {
+        // https://www.w3.org/TR/css-syntax-3/#starts-with-a-number
         let peek = self.process.peek_amount(3);
+
+        // Look at the first code point:
         let first = peek[0];
-        if let Some(v) = first {
-            if v == '\u{002b}' || v == '\u{002d}' {
-                if let Some(second_val) = peek[1]
-                    && Self::is_digit(second_val)
-                {
-                    return true;
-                }
-                if peek[1] == Some('\u{002e}')
-                    && let Some(third_val) = peek[2]
-                    && Self::is_digit(third_val)
-                {
-                    return true;
-                }
-                return false;
+
+        // U+002B PLUS SIGN (+)
+        // U+002D HYPHEN-MINUS (-)
+        if first == Some('\u{002b}') || first == Some('\u{002d}') {
+            if let Some(second_val) = peek[1]
+                && Self::is_digit(second_val)
+            {
+                // If the second code point is a digit, return true.
+                return true;
             }
+
+            // Otherwise, if the second code point is a U+002E FULL STOP (.) and the third code point is a digit, return true.
+            if peek[1] == Some('\u{002e}')
+                && let Some(third_val) = peek[2]
+                && Self::is_digit(third_val)
+            {
+                return true;
+            }
+
+            // Otherwise, return false.
+            return false;
         }
+
+        // U+002E FULL STOP (.)
+        if first == Some('\u{002e}') {
+            // If the second code point is a digit, return true. Otherwise, return false.
+            if let Some(second) = peek[1]
+                && Self::is_digit(second)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        // digit
+        if let Some(v) = first
+            && Self::is_digit(v)
+        {
+            // Return true.
+            return true;
+        }
+
+        // anything else
+        // Return false.
         false
     }
 
