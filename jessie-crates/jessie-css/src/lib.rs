@@ -213,10 +213,18 @@ impl<'a> Tokenizer<'a> {
     }
 
     pub fn consume_ident_like_token(&mut self) -> CSSToken {
+        // https://www.w3.org/TR/css-syntax-3/#consume-ident-like-token
+        // This section describes how to consume an ident-like token from a stream of code points. It returns an <ident-token>, <function-token>, <url-token>, or <bad-url-token>.
+
+        // Consume an ident sequence, and let string be the result.
         let string = self.consume_ident_sequence();
+
+        // If string’s value is an ASCII case-insensitive match for "url", and the next input code point is U+0028 LEFT PARENTHESIS ((),
         if &string.to_lowercase() == "url" && self.process.peek() == Some(&'\u{0028}') {
+            //  consume it.
             self.process.next();
 
+            // 	While the next two input code points are whitespace, consume the next input code point.
             while let (Some(first), Some(second)) = self.peek_twin() {
                 if !(Self::is_whitespace(first) && Self::is_whitespace(second)) {
                     break;
@@ -224,21 +232,26 @@ impl<'a> Tokenizer<'a> {
                 self.process.next();
             }
 
+            // If the next one or two input code points are U+0022 QUOTATION MARK ("), U+0027 APOSTROPHE ('), or whitespace followed by U+0022 QUOTATION MARK (") or U+0027 APOSTROPHE ('),
             if let (Some(first), Some(second)) = self.peek_twin() {
                 if (first == '\u{0022}' || first == '\u{0027}')
                     || (Self::is_whitespace(first)
                         && (second == '\u{0022}' || second == '\u{0027}'))
                 {
+                    // then create a <function-token> with its value set to string and return it.
                     return CSSToken::FunctionToken { value: string };
-                } else {
-                    return self.consume_url_token();
                 }
+                // 	Otherwise, consume a url token, and return it.
+                return self.consume_url_token();
             }
         }
+        // Otherwise, if the next input code point is U+0028 LEFT PARENTHESIS ((), consume it.
         if self.process.peek() == Some(&'\u{0028}') {
             self.process.next();
+            // Create a <function-token> with its value set to string and return it.
             return CSSToken::FunctionToken { value: string };
         }
+        // Otherwise, create an <ident-token> with its value set to string and return it.
         CSSToken::IdentToken { value: string }
     }
 
