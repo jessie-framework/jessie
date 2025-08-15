@@ -148,6 +148,10 @@ impl<'a> Tokenizer<'a> {
                     self.process.put_back(v);
                     return self.consume_numeric_token();
                 }
+                if Self::is_ident_start_code_point(v) {
+                    self.process.put_back(v);
+                    return self.consume_ident_like_token();
+                }
                 CSSToken::DelimToken { value: v }
             }
             None => CSSToken::EOFToken,
