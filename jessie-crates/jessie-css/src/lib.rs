@@ -256,27 +256,45 @@ impl<'a> Tokenizer<'a> {
     }
 
     pub fn consume_url_token(&mut self) -> CSSToken {
+        // https://www.w3.org/TR/css-syntax-3/#consume-url-token
+        // This section describes how to consume a url token from a stream of code points. It returns either a <url-token> or a <bad-url-token>.
+
+        // Initially create a <url-token> with its value set to the empty string.
         let mut url_token_val = String::new();
+
+        //  Consume as much whitespace as possible.
         self.consume_whitespace();
+
+        // Repeatedly consume the next input code point from the stream:
         loop {
             let next = self.process.next();
+
+            // U+0029 RIGHT PARENTHESIS ())
             if next == Some('\u{0029}') {
+                // Return the <url-token>.
                 return CSSToken::URLToken {
                     value: url_token_val,
                 };
             }
 
+            // EOF
             if next.is_none() {
+                // This is a parse error. Return the <url-token>.
                 self.parse_error();
                 return CSSToken::URLToken {
                     value: url_token_val,
                 };
             }
 
+            // whitespace
             if Self::is_whitespace(next.unwrap()) {
+                // Consume as much whitespace as possible.
                 self.consume_whitespace();
+
+                // 	If the next input code point is U+0029 RIGHT PARENTHESIS ()) or EOF,
                 let peek = self.process.peek();
                 if matches!(peek, None | Some(&'\u{0029}')) {
+                    // 	consume it and return the <url-token>  (if EOF was encountered, this is a parse error);
                     if peek.is_none() {
                         self.parse_error();
                     }
@@ -285,32 +303,46 @@ impl<'a> Tokenizer<'a> {
                         value: url_token_val,
                     };
                 }
+
+                // otherwise, consume the remnants of a bad url, create a <bad-url-token>, and return it.
                 self.consume_remnants_of_bad_url();
                 return CSSToken::BadURLToken;
             }
+
+            // U+0022 QUOTATION MARK (")
+            // U+0027 APOSTROPHE (')
+            // U+0028 LEFT PARENTHESIS (()
+            // non-printable code point
             if let Some(v) = next
                 && ((v == '\u{0022}')
                     || (v == '\u{0027}')
                     || (v == '\u{0028}')
                     || Self::is_none_printable_code_point(v))
             {
+                // This is a parse error. Consume the remnants of a bad url, create a <bad-url-token>, and return it.
                 self.parse_error();
                 self.consume_remnants_of_bad_url();
                 return CSSToken::BadURLToken;
             }
 
+            // U+005C REVERSE SOLIDUS (\)
             if next == Some('\u{005c}') {
+                // If the stream starts with a valid escape, consume an escaped code point and append the returned code point to the <url-token>’s value.
                 if let Some(&v) = self.process.peek()
                     && Self::is_valid_escape(next, Some(v))
                 {
                     url_token_val.push(self.consume_escaped_code_point());
                 }
+
+                // Otherwise, this is a parse error. Consume the remnants of a bad url, create a <bad-url-token>, and return it.
                 self.parse_error();
                 self.consume_remnants_of_bad_url();
                 return CSSToken::BadURLToken;
             }
 
+            // anything else
             if let Some(v) = next {
+                // Append the current input code point to the <url-token>’s value.
                 url_token_val.push(v);
             }
         }
