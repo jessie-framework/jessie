@@ -112,11 +112,15 @@ impl<'a> Tokenizer<'a> {
                 {
                     return CSSToken::FunctionToken { value: string };
                 } else {
-                    return CSSToken::WhitespaceToken;
+                    return self.consume_url_token();
                 }
             }
         }
-        todo!();
+        if self.process.peek() == Some(&'\u{0028}') {
+            self.process.next();
+            return CSSToken::FunctionToken { value: string };
+        }
+        CSSToken::IdentToken { value: string }
     }
 
     fn consume_url_token(&mut self) -> CSSToken {
@@ -724,6 +728,9 @@ pub enum CSSToken {
         value: String,
     },
     BadURLToken,
+    IdentToken {
+        value: String,
+    },
 }
 
 #[derive(Debug, PartialEq, Eq)]
