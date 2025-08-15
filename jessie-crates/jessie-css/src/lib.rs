@@ -120,8 +120,7 @@ impl<'a> Tokenizer<'a> {
     }
 
     fn consume_url_token(&mut self) -> CSSToken {
-        // TODO:FIX IMPLEMENTATION OF ERRORS
-        let url_token_val = String::new();
+        let mut url_token_val = String::new();
         self.consume_whitespace();
         loop {
             let next = self.process.next();
@@ -132,6 +131,7 @@ impl<'a> Tokenizer<'a> {
             }
 
             if next.is_none() {
+                self.parse_error();
                 return CSSToken::URLToken {
                     value: url_token_val,
                 };
@@ -139,9 +139,64 @@ impl<'a> Tokenizer<'a> {
 
             if Self::is_whitespace(next.unwrap()) {
                 self.consume_whitespace();
-                if matches!(self.process.peek(), None | Some(&'\u{0029}')) {
+                let peek = self.process.peek();
+                if matches!(peek, None | Some(&'\u{0029}')) {
+                    if peek.is_none() {
+                        self.parse_error();
+                    }
                     self.process.next();
+                    return CSSToken::URLToken {
+                        value: url_token_val,
+                    };
                 }
+                self.consume_remnants_of_bad_url();
+                return CSSToken::BadURLToken;
+            }
+            if let Some(v) = next
+                && ((v == '\u{0022}')
+                    || (v == '\u{0027}')
+                    || (v == '\u{0028}')
+                    || Self::is_none_printable_code_point(v))
+            {
+                self.parse_error();
+                self.consume_remnants_of_bad_url();
+                return CSSToken::BadURLToken;
+            }
+
+            if next == Some('\u{005c}') {
+                if let Some(&v) = self.process.peek()
+                    && Self::is_valid_escape(next, Some(v))
+                {
+                    url_token_val.push(self.consume_escaped_code_point());
+                }
+                self.parse_error();
+                self.consume_remnants_of_bad_url();
+                return CSSToken::BadURLToken;
+            }
+
+            if let Some(v) = next {
+                url_token_val.push(v);
+            }
+        }
+    }
+
+    fn is_none_printable_code_point(input: char) -> bool {
+        ('\u{0000}' <= input && '\u{0008}' >= input)
+            || (input == '\u{000b}')
+            || ('\u{000e}' <= input && '\u{001f}' >= input)
+            || (input == '\u{007f}')
+    }
+
+    fn consume_remnants_of_bad_url(&mut self) {
+        loop {
+            let next = self.process.next();
+            if next == Some('\u{0029}') {
+                return;
+            }
+            if let Some(&peek) = self.process.peek()
+                && Self::is_valid_escape(next, Some(peek))
+            {
+                self.consume_escaped_code_point();
             }
         }
     }
@@ -668,6 +723,7 @@ pub enum CSSToken {
     URLToken {
         value: String,
     },
+    BadURLToken,
 }
 
 #[derive(Debug, PartialEq, Eq)]
