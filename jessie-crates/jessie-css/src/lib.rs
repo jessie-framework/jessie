@@ -358,16 +358,27 @@ impl<'a> Tokenizer<'a> {
     }
 
     pub fn consume_remnants_of_bad_url(&mut self) {
+        // https://www.w3.org/TR/css-syntax-3/#consume-remnants-of-bad-url
         loop {
+            // Repeatedly consume the next input code point from the stream:
             let next = self.process.next();
-            if next == Some('\u{0029}') {
+
+            // U+0029 RIGHT PARENTHESIS ())
+            // EOF
+            if next == Some('\u{0029}') || next.is_none() {
                 return;
             }
+
+            // the input stream starts with a valid escape
             if let Some(&peek) = self.process.peek()
                 && Self::is_valid_escape(next, Some(peek))
             {
+                // Consume an escaped code point. This allows an escaped right parenthesis ("\)") to be encountered without ending the <bad-url-token>. This is otherwise identical to the "anything else" clause.
                 self.consume_escaped_code_point();
             }
+
+            // anything else
+            // Do nothing.
         }
     }
 
