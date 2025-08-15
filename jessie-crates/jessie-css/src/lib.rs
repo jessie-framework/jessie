@@ -602,54 +602,65 @@ impl<'a> Tokenizer<'a> {
 
     pub fn consume_string_token(&mut self, code_point: char) -> CSSToken {
         // https://www.w3.org/TR/css-syntax-3/#consume-string-token
+        // This section describes how to consume a string token from a stream of code points. It returns either a <string-token> or <bad-string-token>.
+
         //This algorithm may be called with an ending code point, which denotes the code point that ends the string. If an ending code point is not specified, the current input code point is used.
 
         //Initially create a <string-token> with its value set to the empty string.
         let mut out = String::new();
-        while let Some(v) = self.process.peek() {
-            match v {
-                // ending code point :
-                //newline
-                '\u{000a}' => {
-                    //This is a parse error. Reconsume the current input code point, create a <bad-string-token>, and return it.
+
+        // Repeatedly consume the next input code point from the stream:
+        loop {
+            let next = self.process.next();
+            // ending code point
+            if next == Some(code_point) {
+                // Return the <string-token>.
+                return CSSToken::StringToken { string: out };
+            }
+
+            //EOF
+            if next.is_none() {
+                // This is a parse error. Return the <string-token>.
+                self.parse_error();
+                return CSSToken::StringToken { string: out };
+            }
+            // newline
+            if next == Some('\u{000a}') {
+                // This is a parse error. Reconsume the current input code point, create a <bad-string-token>, and return it.
+                self.parse_error();
+                self.process.put_back('\u{000a}');
+                return CSSToken::BadStringToken;
+            }
+            // U+005C REVERSE SOLIDUS (\)
+            if next == Some('\u{005c}') {
+                // If the next input code point is EOF, do nothing.
+                if self.process.peek().is_none() {}
+
+                // Otherwise, if the next input code point is a newline, consume it.
+                if let Some(&v) = self.process.peek()
+                    && Self::is_newline(v)
+                {
                     self.process.next();
-                    return CSSToken::BadStringToken;
                 }
 
-                //U+005C REVERSE SOLIDUS (\)
-                '\u{005c}' => {
-                    match self.process.peek_nth(1) {
-                        //If the next input code point is EOF, do nothing.
-                        //Otherwise, if the next input code point is a new line , consume it.
-                        None => {}
-
-                        Some('\n') => {
-                            self.process.next();
-                        }
-
-                        v => {
-                            if Self::is_valid_escape(Some('\u{005c}'), Some(*v.unwrap())) {
-                                out.push(self.consume_escaped_code_point());
-                            }
-                        }
-                    }
-                }
-
-                x => {
-                    if *x == code_point {
-                        self.process.next();
-                        return CSSToken::StringToken { string: out };
-                    }
-
-                    out.push(*x);
-                    self.process.next();
-                    // Return the <string-token>.
+                // Otherwise, (the stream starts with a valid escape) consume an escaped code point and append the returned code point to the <string-token>’s value.
+                if let Some(&v) = self.process.peek()
+                    && Self::is_valid_escape(Some('\u{005c}'), Some(v))
+                {
+                    out.push(self.consume_escaped_code_point())
                 }
             }
+
+            // anything else
+            // Append the current input code point to the <string-token>’s value.
+            if let Some(v) = next {
+                out.push(v);
+            }
         }
-        // EOF :  This is a parse error. Return the <string-token>.
-        self.parse_error();
-        CSSToken::StringToken { string: out }
+    }
+
+    pub fn is_newline(input: char) -> bool {
+        input == '\u{000a}'
     }
 
     pub fn peek_twin(&mut self) -> (Option<char>, Option<char>) {
