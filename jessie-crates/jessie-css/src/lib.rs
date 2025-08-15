@@ -670,21 +670,35 @@ impl<'a> Tokenizer<'a> {
     }
 
     pub fn consume_ident_sequence(&mut self) -> String {
+        // https://www.w3.org/TR/css-syntax-3/#consume-name
+
+        // Let result initially be an empty string.
         let mut result = String::new();
+
+        // Repeatedly consume the next input code point from the stream:
         loop {
-            let (first, second) = self.peek_twin();
-            if let Some(v) = first {
-                if Self::is_ident_code_point(first) {
-                    result.push(v);
-                }
-                if Self::is_valid_escape(first, second) {
-                    self.process.next();
-                    result.push(self.consume_escaped_code_point());
-                }
-                let _ = self.process.put_back(v);
+            let next = self.process.next();
+
+            // ident code point
+            if let Some(v) = next
+                && Self::is_ident_code_point(Some(v))
+            {
+                // Append the code point to result.
+                result.push(v);
+            }
+            // the stream starts with a valid escape
+            else if let Some(&v) = self.process.peek()
+                && Self::is_valid_escape(next, Some(v))
+            {
+                // Consume an escaped code point. Append the returned code point to result.
+                result.push(self.consume_escaped_code_point());
+            }
+            // anything else
+            else {
+                // Reconsume the current input code point. Return result.
+                self.process.put_back_option(next);
                 return result;
             }
-            self.process.next();
         }
     }
 
@@ -1055,6 +1069,10 @@ impl<'a> PutBackPeekMore<'a> {
 
     pub fn put_back(&mut self, input: char) {
         self.put_back = Some(input);
+    }
+
+    pub fn put_back_option(&mut self, input: Option<char>) {
+        self.put_back = input;
     }
 
     pub fn peek(&mut self) -> Option<&char> {
