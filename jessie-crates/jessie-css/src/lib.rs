@@ -349,9 +349,11 @@ impl<'a> Tokenizer<'a> {
     }
 
     pub fn is_none_printable_code_point(input: char) -> bool {
-        ('\u{0000}' <= input && '\u{0008}' >= input)
+        // https://www.w3.org/TR/css-syntax-3/#tokenizer-definitions
+        // A code point between U+0000 NULL and U+0008 BACKSPACE inclusive, or U+000B LINE TABULATION, or a code point between U+000E SHIFT OUT and U+001F INFORMATION SEPARATOR ONE inclusive, or U+007F DELETE.
+        (('\u{0000}'..='\u{0008}').contains(&input))
             || (input == '\u{000b}')
-            || ('\u{000e}' <= input && '\u{001f}' >= input)
+            || (('\u{000e}'..='\u{001f}').contains(&input))
             || (input == '\u{007f}')
     }
 
