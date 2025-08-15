@@ -2,6 +2,10 @@
 name = "jessie-css"
 version = "0.1.0"
 edition = "2024"
+description = "CSS parsing library for the Jessie UI framework."
+homepage = "https://jessie.rs"
+license = "MIT"
+repository = "https://github.com/jessie-framework/jessie"
 
 [dependencies]
 itertools = "0.14.0"
