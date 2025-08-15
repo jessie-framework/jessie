@@ -103,13 +103,21 @@ impl<'a> Tokenizer<'a> {
                     return CSSToken::SemicolonToken;
                 }
                 if v == '\u{003c}' {
-                    if self.process.peek_amount(3)
-                        == &[Some('\u{0021}'), Some('\u{002d}'), Some('\u{002d}')]
+                    if *self.process.peek_amount(3)
+                        == [Some('\u{0021}'), Some('\u{002d}'), Some('\u{002d}')]
                     {
                         self.process.next();
                         self.process.next();
                         self.process.next();
                         return CSSToken::CDOToken;
+                    }
+                    return CSSToken::DelimToken { value: v };
+                }
+                if v == '\u{0040}' {
+                    if self.would_start_ident_sequence() {
+                        return CSSToken::AtKeywordToken {
+                            value: self.consume_ident_sequence(),
+                        };
                     }
                     return CSSToken::DelimToken { value: v };
                 }
@@ -760,6 +768,9 @@ pub enum CSSToken {
     ColonToken,
     SemicolonToken,
     CDOToken,
+    AtKeywordToken {
+        value: String,
+    },
 }
 
 #[derive(Debug, PartialEq, Eq)]
