@@ -23,86 +23,114 @@ impl<'a> Tokenizer<'a> {
         // Consume comments.
         self.consume_comments();
 
+        // Consume the next input code point.
         match self.process.peek() {
-            Some(v) => {
-                let v = *v;
+            Some(&v) => {
+                // whitespace
                 if Self::is_whitespace(v) {
                     // Consume as much whitespace as possible. Return a <whitespace-token>.
-                    self.process.next();
                     self.consume_whitespace();
                     return CSSToken::WhitespaceToken;
                 }
+                // U+0022 QUOTATION MARK (")
                 if v == '\u{0022}' {
-                    self.process.next();
                     // Consume a string token and return it.
                     return self.consume_string_token(v);
                 }
+                // U+0023 NUMBER SIGN (#)
                 if v == '\u{0023}' {
-                    self.process.next();
                     let (first, second) = self.peek_twin();
 
+                    // If the next input code point is an ident code point or the next two input code points are a valid escape, then:
                     if Self::is_ident_code_point(first) || Self::is_valid_escape(first, second) {
+                        // Create a <hash-token>.  NOTE: we cant really lol
                         let mut flag = HashTokenFlag::Unrestricted;
+                        //  If the next 3 input code points would start an ident sequence, set the <hash-token>’s type flag to "id".
                         if self.would_start_ident_sequence() {
                             flag = HashTokenFlag::Id;
                         }
+                        // Consume an ident sequence, and set the <hash-token>’s value to the returned string.
                         let value = self.consume_ident_sequence();
+                        // Return the <hash-token>.
                         return CSSToken::HashToken { flag, value };
                     }
+                    // Otherwise, return a <delim-token> with its value set to the current input code point.
                     return CSSToken::DelimToken { value: v };
                 }
+                // U+0027 APOSTROPHE (')
                 if v == '\u{0027}' {
-                    self.process.next();
+                    // Consume a string token and return it.
                     return self.consume_string_token(v);
                 }
+                // U+0028 LEFT PARENTHESIS (()
                 if v == '\u{0028}' {
-                    self.process.next();
+                    // Return a <(-token>.
                     return CSSToken::LParenToken;
                 }
+                // U+0029 RIGHT PARENTHESIS ())
                 if v == '\u{0029}' {
-                    self.process.next();
+                    // Return a <)-token>.
                     return CSSToken::RParenToken;
                 }
+                // U+002B PLUS SIGN (+)
                 if v == '\u{002b}' {
+                    // If the input stream starts with a number, reconsume the current input code point, consume a numeric token, and return it.
                     if self.would_start_number() {
                         self.process.put_back(v);
                         return self.consume_numeric_token();
                     }
+                    // Otherwise, return a <delim-token> with its value set to the current input code point.
                     return CSSToken::DelimToken { value: v };
                 }
+                // U+002C COMMA (,)
                 if v == '\u{002c}' {
+                    // Return a <comma-token>.
                     return CSSToken::CommaToken;
                 }
+                // U+002D HYPHEN-MINUS (-)
                 if v == '\u{002d}' {
+                    // If the input stream starts with a number, reconsume the current input code point, consume a numeric token, and return it.
                     if self.would_start_number() {
                         self.process.put_back(v);
                         return self.consume_numeric_token();
                     }
+                    // Otherwise, if the next 2 input code points are U+002D HYPHEN-MINUS U+003E GREATER-THAN SIGN (->), consume them and return a <CDC-token>.
                     if self.peek_twin() == (Some('\u{002d}'), Some('\u{003e}')) {
                         self.process.next();
                         self.process.next();
                         return CSSToken::CDCToken;
                     }
+                    // Otherwise, if the input stream starts with an ident sequence, reconsume the current input code point, consume an ident-like token, and return it.
                     if self.would_start_ident_sequence() {
                         self.process.put_back(v);
                         return self.consume_ident_like_token();
                     }
+                    // Otherwise, return a <delim-token> with its value set to the current input code point.
                     return CSSToken::DelimToken { value: v };
                 }
+                // U+002E FULL STOP (.)
                 if v == '\u{002e}' {
+                    // If the input stream starts with a number, reconsume the current input code point, consume a numeric token, and return it.
                     if self.would_start_number() {
                         self.process.put_back(v);
                         return self.consume_numeric_token();
                     }
+                    // Otherwise, return a <delim-token> with its value set to the current input code point.
                     return CSSToken::DelimToken { value: v };
                 }
+                // U+003A COLON (:)
                 if v == '\u{003a}' {
+                    // Return a <colon-token>.
                     return CSSToken::ColonToken;
                 }
+                // U+003B SEMICOLON (;)
                 if v == '\u{003b}' {
+                    // Return a <semicolon-token>.
                     return CSSToken::SemicolonToken;
                 }
+                // U+003C LESS-THAN SIGN (<)
                 if v == '\u{003c}' {
+                    // If the next 3 input code points are U+0021 EXCLAMATION MARK U+002D HYPHEN-MINUS U+002D HYPHEN-MINUS (!--), consume them and return a <CDO-token>.
                     if *self.process.peek_amount(3)
                         == [Some('\u{0021}'), Some('\u{002d}'), Some('\u{002d}')]
                     {
@@ -111,49 +139,71 @@ impl<'a> Tokenizer<'a> {
                         self.process.next();
                         return CSSToken::CDOToken;
                     }
+                    // Otherwise, return a <delim-token> with its value set to the current input code point.
                     return CSSToken::DelimToken { value: v };
                 }
+                // U+0040 COMMERCIAL AT (@)
                 if v == '\u{0040}' {
+                    // If the next 3 input code points would start an ident sequence, consume an ident sequence, create an <at-keyword-token> with its value set to the returned value, and return it.
                     if self.would_start_ident_sequence() {
                         return CSSToken::AtKeywordToken {
                             value: self.consume_ident_sequence(),
                         };
                     }
+                    // Otherwise, return a <delim-token> with its value set to the current input code point.
                     return CSSToken::DelimToken { value: v };
                 }
+                // U+005B LEFT SQUARE BRACKET ([)
                 if v == '\u{005b}' {
+                    // Return a <[-token>.
                     return CSSToken::LeftSquareBracketToken;
                 }
+                // U+005C REVERSE SOLIDUS (\)
                 if v == '\u{005c}' {
+                    // If the input stream starts with a valid escape, reconsume the current input code point, consume an ident-like token, and return it.
                     if let Some(&second) = self.process.peek()
                         && Self::is_valid_escape(Some(v), Some(second))
                     {
                         self.process.put_back(v);
                         return self.consume_ident_like_token();
                     }
-
+                    // Otherwise, this is a parse error. Return a <delim-token> with its value set to the current input code point.
                     self.parse_error();
                     return CSSToken::DelimToken { value: v };
                 }
+                // U+005D RIGHT SQUARE BRACKET (])
                 if v == '\u{005d}' {
+                    // Return a <]-token>.
                     return CSSToken::RightSquareBracketToken;
                 }
+                // U+007B LEFT CURLY BRACKET ({)
                 if v == '\u{007b}' {
+                    // Return a <{-token>.
                     return CSSToken::LeftCurlyBracketToken;
                 }
+                // U+007D RIGHT CURLY BRACKET (})
                 if v == '\u{007d}' {
+                    // Return a <}-token>.
                     return CSSToken::RightCurlyBracketToken;
                 }
+                // digit
                 if Self::is_digit(v) {
+                    // Reconsume the current input code point, consume a numeric token, and return it.
                     self.process.put_back(v);
                     return self.consume_numeric_token();
                 }
+                // ident-start code point
                 if Self::is_ident_start_code_point(v) {
+                    // Reconsume the current input code point, consume an ident-like token, and return it.
                     self.process.put_back(v);
                     return self.consume_ident_like_token();
                 }
+                // anything else
+                // Return a <delim-token> with its value set to the current input code point.
                 CSSToken::DelimToken { value: v }
             }
+            // EOF
+            // Return an <EOF-token>.
             None => CSSToken::EOFToken,
         }
     }
