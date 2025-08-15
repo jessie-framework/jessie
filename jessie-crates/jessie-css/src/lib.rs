@@ -144,6 +144,10 @@ impl<'a> Tokenizer<'a> {
                 if v == '\u{007d}' {
                     return CSSToken::RightCurlyBracketToken;
                 }
+                if Self::is_digit(v) {
+                    self.process.put_back(v);
+                    return self.consume_numeric_token();
+                }
                 CSSToken::DelimToken { value: v }
             }
             None => CSSToken::EOFToken,
