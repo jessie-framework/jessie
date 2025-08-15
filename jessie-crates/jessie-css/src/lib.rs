@@ -421,9 +421,14 @@ impl<'a> Tokenizer<'a> {
     }
 
     pub fn consume_number(&mut self) -> Number {
+        // https://www.w3.org/TR/css-syntax-3/#consume-number
+        // This section describes how to consume a number from a stream of code points. It returns a numeric value, and a type which is either "integer" or "number".
+
+        //  Initially set type to "integer". Let repr be the empty string.
         let mut r#type = NumberType::Integer;
         let mut repr = String::new();
 
+        // If the next input code point is U+002B PLUS SIGN (+) or U+002D HYPHEN-MINUS (-), consume it and append it to repr.
         if let Some(&v) = self.process.peek()
             && (v == '\u{002b}' || v == '\u{002d}')
         {
@@ -431,6 +436,7 @@ impl<'a> Tokenizer<'a> {
             repr.push(v);
         }
 
+        // While the next input code point is a digit, consume it and append it to repr.
         while let Some(&v) = self.process.peek() {
             if !Self::is_digit(v) {
                 break;
@@ -439,14 +445,20 @@ impl<'a> Tokenizer<'a> {
             repr.push(v);
         }
 
+        // If the next 2 input code points are U+002E FULL STOP (.) followed by a digit, then:
         if let (Some(first), Some(second)) = self.peek_twin()
             && (first == '\u{002e}' && Self::is_digit(second))
         {
+            // Consume them.
             self.process.next();
             self.process.next();
+            // Append them to repr.
             repr.push(first);
             repr.push(second);
+            // Set type to "number".
             r#type = NumberType::Number;
+
+            // While the next input code point is a digit, consume it and append it to repr.
             while let Some(&v) = self.process.peek() {
                 if !Self::is_digit(v) {
                     break;
@@ -456,10 +468,13 @@ impl<'a> Tokenizer<'a> {
             }
         }
 
+        // If the next 2 or 3 input code points are U+0045 LATIN CAPITAL LETTER E (E) or U+0065 LATIN SMALL LETTER E (e), optionally followed by U+002D HYPHEN-MINUS (-) or U+002B PLUS SIGN (+), followed by a digit, then:
         if let &[Some(first), Some(second), Some(third)] = self.process.peek_amount(3)
             && ((Self::is_e(first) && Self::is_digit(second))
                 || (Self::is_e(first) && Self::is_plus_or_minus(second) && Self::is_digit(third)))
         {
+            // Consume them.
+            // Append them to repr
             self.process.next();
             self.process.next();
             repr.push(first);
@@ -468,7 +483,11 @@ impl<'a> Tokenizer<'a> {
                 self.process.next();
                 repr.push(third);
             }
+
+            // Set type to "number".
             r#type = NumberType::Number;
+
+            // While the next input code point is a digit, consume it and append it to repr.
             while let Some(&v) = self.process.peek() {
                 if !Self::is_digit(v) {
                     break;
@@ -478,6 +497,8 @@ impl<'a> Tokenizer<'a> {
             }
         }
 
+        // Convert repr to a number, and set the value to the returned value.
+        // Return value and type.
         Number {
             value: Self::string_to_number(repr),
             r#type,
