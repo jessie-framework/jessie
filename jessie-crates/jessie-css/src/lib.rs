@@ -124,6 +124,17 @@ impl<'a> Tokenizer<'a> {
                 if v == '\u{005b}' {
                     return CSSToken::LeftSquareBracketToken;
                 }
+                if v == '\u{005c}' {
+                    if let Some(&second) = self.process.peek()
+                        && Self::is_valid_escape(Some(v), Some(second))
+                    {
+                        self.process.put_back(v);
+                        return self.consume_ident_like_token();
+                    }
+
+                    self.parse_error();
+                    return CSSToken::DelimToken { value: v };
+                }
                 return CSSToken::WhitespaceToken;
             }
             None => CSSToken::EOFToken,
