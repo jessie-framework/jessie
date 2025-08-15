@@ -506,20 +506,28 @@ impl<'a> Tokenizer<'a> {
     }
 
     pub fn string_to_number(input: String) -> f64 {
+        // https://www.w3.org/TR/css-syntax-3/#convert-string-to-number
+        // This section describes how to convert a string to a number. It returns a number.
         let mut iter = input.chars().peekable();
         let mut _sign: Option<char> = None;
+
+        // Divide the string into seven components, in order from left to right:
+        // A sign: a single U+002B PLUS SIGN (+) or U+002D HYPHEN-MINUS (-), or the empty string.
         if let Some(&v) = iter.peek()
             && (v == '\u{002b}' || v == '\u{002d}')
         {
             iter.next();
             _sign = Some(v);
         }
+        // 	Let s be the number -1 if the sign is U+002D HYPHEN-MINUS (-); otherwise, let s be the number 1.
         let s: f64 = {
             match _sign {
                 Some('\u{002d}') => -1.,
                 _ => 1.,
             }
         };
+
+        // An integer part: zero or more digits.
         let mut integer_part = String::new();
         while let Some(&v) = iter.peek() {
             if !Self::is_digit(v) {
@@ -528,7 +536,11 @@ impl<'a> Tokenizer<'a> {
             integer_part.push(v);
             iter.next();
         }
+
+        // If there is at least one digit, let i be the number formed by interpreting the digits as a base-10 integer; otherwise, let i be the number 0.
         let i = integer_part.parse::<f64>().unwrap_or(0.);
+
+        // A decimal point: a single U+002E FULL STOP (.), or the empty string.
         let mut _decimal_point = None;
         if let Some(&v) = iter.peek()
             && (v == '\u{002e}')
@@ -537,6 +549,7 @@ impl<'a> Tokenizer<'a> {
             _decimal_point = Some(v);
         }
 
+        // A fractional part: zero or more digits.
         let mut fractional_part = String::new();
         while let Some(&v) = iter.peek() {
             if !Self::is_digit(v) {
@@ -546,9 +559,11 @@ impl<'a> Tokenizer<'a> {
             iter.next();
         }
 
+        // If there is at least one digit, let f be the number formed by interpreting the digits as a base-10 integer and d be the number of digits; otherwise, let f and d be the number 0.
         let f = fractional_part.parse::<f64>().unwrap_or(0.);
         let d = fractional_part.len() as f64;
 
+        // An exponent indicator: a single U+0045 LATIN CAPITAL LETTER E (E) or U+0065 LATIN SMALL LETTER E (e), or the empty string.
         let mut _exponent_indicator = None;
         if let Some(&v) = iter.peek()
             && (v == '\u{0045}' || v == '\u{0065}')
@@ -557,6 +572,7 @@ impl<'a> Tokenizer<'a> {
             _exponent_indicator = Some(v);
         }
 
+        // An exponent sign: a single U+002B PLUS SIGN (+) or U+002D HYPHEN-MINUS (-), or the empty string.
         let mut _exponent_sign = None;
 
         if let Some(&v) = iter.peek()
@@ -566,6 +582,7 @@ impl<'a> Tokenizer<'a> {
             _exponent_sign = Some(v);
         }
 
+        // Let t be the number -1 if the sign is U+002D HYPHEN-MINUS (-); otherwise, let t be the number 1.
         let t = {
             match _exponent_sign {
                 Some('\u{002d}') => -1.,
@@ -573,6 +590,7 @@ impl<'a> Tokenizer<'a> {
             }
         };
 
+        // An exponent: zero or more digits.
         let mut exponent = String::new();
         while let Some(&v) = iter.peek() {
             if !Self::is_digit(v) {
@@ -582,8 +600,10 @@ impl<'a> Tokenizer<'a> {
             iter.next();
         }
 
+        // If there is at least one digit, let e be the number formed by interpreting the digits as a base-10 integer; otherwise, let e be the number 0.
         let e = exponent.parse::<f64>().unwrap_or(0.);
 
+        // Return the number s·(i + f·10-d)·10te.
         s * (i + (f * 10.0_f64.powf(-d))) * 10.0_f64.powf(t * e)
     }
 
