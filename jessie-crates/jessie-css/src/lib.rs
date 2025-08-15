@@ -158,6 +158,10 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
+    fn is_parse_error(&mut self) -> bool {
+        self.parse_error
+    }
+
     fn consume_ident_like_token(&mut self) -> CSSToken {
         let string = self.consume_ident_sequence();
         if &string.to_lowercase() == "url" && self.process.peek() == Some(&'\u{0028}') {
