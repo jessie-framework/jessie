@@ -383,21 +383,37 @@ impl<'a> Tokenizer<'a> {
     }
 
     pub fn consume_numeric_token(&mut self) -> CSSToken {
+        // https://www.w3.org/TR/css-syntax-3/#consume-numeric-token
+
+        // This section describes how to consume a numeric token from a stream of code points. It returns either a <number-token>, <percentage-token>, or <dimension-token>.
+
+        // Consume a number and let number be the result.
         let number = self.consume_number();
+
+        // If the next 3 input code points would start an ident sequence, then:
         if self.would_start_ident_sequence() {
+            // Create a <dimension-token> with the same value and type flag as number, and a unit set initially to the empty string.
+            // Consume an ident sequence. Set the <dimension-token>’s unit to the returned value.
+            // Return the <dimension-token>.
             return CSSToken::DimensionToken {
                 flag: number.r#type,
                 value: number.value,
                 unit: self.consume_ident_sequence(),
             };
         }
+
+        // Otherwise, if the next input code point is U+0025 PERCENTAGE SIGN (%), consume it.
         if self.process.peek() == Some(&'\u{0025}') {
             self.process.next();
+
+            // 	Create a <percentage-token> with the same value as number, and return it.
             return CSSToken::PercentageToken {
                 flag: number.r#type,
                 value: number.value,
             };
         }
+
+        // Otherwise, create a <number-token> with the same value and type flag as number, and return it.
         CSSToken::NumberToken {
             flag: number.r#type,
             value: number.value,
