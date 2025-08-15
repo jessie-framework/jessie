@@ -703,21 +703,45 @@ impl<'a> Tokenizer<'a> {
     }
 
     pub fn would_start_ident_sequence(&mut self) -> bool {
+        // https://www.w3.org/TR/css-syntax-3/#would-start-an-identifier
         let peek = self.process.peek_amount(3);
-        if let Some(first) = peek[0] {
-            if first == '\u{002d}' {
-                if let Some(second) = peek[1] {
-                    return Self::is_ident_start_code_point(second)
-                        || Self::is_valid_escape(peek[1], peek[2]);
-                }
-            }
-            if Self::is_ident_start_code_point(first) {
+        let first = peek[0];
+        let second = peek[1];
+        let third = peek[2];
+
+        // Look at the first code point:
+
+        // U+002D HYPHEN-MINUS
+        if first == Some('\u{002d}') {
+            // If the second code point is an ident-start code point or a U+002D HYPHEN-MINUS, or the second and third code points are a valid escape, return true
+            if let Some(v) = second
+                && (Self::is_ident_start_code_point(v) || v == '\u{002d}')
+            {
                 return true;
             }
-            if first == '\u{005c}' {
-                return Self::is_valid_escape(peek[0], peek[1]);
+
+            if Self::is_valid_escape(second, third) {
+                return true;
             }
+
+            // Otherwise, return false.
+            return false;
         }
+
+        // ident-start code point
+        if let Some(v) = first
+            && Self::is_ident_start_code_point(v)
+        {
+            return true;
+        }
+
+        // U+005C REVERSE SOLIDUS (\)
+        if first == Some('\u{005c}') {
+            // If the first and second code points are a valid escape, return true. Otherwise, return false.
+            return Self::is_valid_escape(first, second);
+        }
+        // anything else
+        // Return false.
         false
     }
 
