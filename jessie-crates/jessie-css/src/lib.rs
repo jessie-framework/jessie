@@ -65,7 +65,7 @@ impl<'a> Tokenizer<'a> {
                 }
                 if v == '\u{002b}' {
                     if self.would_start_number() {
-                        let _ = self.process.put_back(v);
+                        self.process.put_back(v);
                         return self.consume_numeric_token();
                     }
                     return CSSToken::DelimToken { value: v };
@@ -75,7 +75,7 @@ impl<'a> Tokenizer<'a> {
                 }
                 if v == '\u{002d}' {
                     if self.would_start_number() {
-                        let _ = self.process.put_back(v);
+                        self.process.put_back(v);
                         return self.consume_numeric_token();
                     }
                     if self.peek_twin() == (Some('\u{002d}'), Some('\u{003e}')) {
@@ -84,7 +84,7 @@ impl<'a> Tokenizer<'a> {
                         return CSSToken::CDCToken;
                     }
                     if self.would_start_ident_sequence() {
-                        let _ = self.process.put_back(v);
+                        self.process.put_back(v);
                         return self.consume_ident_like_token();
                     }
                     return CSSToken::DelimToken { value: v };
@@ -93,6 +93,23 @@ impl<'a> Tokenizer<'a> {
                     if self.would_start_number() {
                         self.process.put_back(v);
                         return self.consume_numeric_token();
+                    }
+                    return CSSToken::DelimToken { value: v };
+                }
+                if v == '\u{003a}' {
+                    return CSSToken::ColonToken;
+                }
+                if v == '\u{003b}' {
+                    return CSSToken::SemicolonToken;
+                }
+                if v == '\u{003c}' {
+                    if self.process.peek_amount(3)
+                        == &[Some('\u{0021}'), Some('\u{002d}'), Some('\u{002d}')]
+                    {
+                        self.process.next();
+                        self.process.next();
+                        self.process.next();
+                        return CSSToken::CDOToken;
                     }
                     return CSSToken::DelimToken { value: v };
                 }
@@ -740,6 +757,9 @@ pub enum CSSToken {
     IdentToken {
         value: String,
     },
+    ColonToken,
+    SemicolonToken,
+    CDOToken,
 }
 
 #[derive(Debug, PartialEq, Eq)]
