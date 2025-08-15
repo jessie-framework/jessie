@@ -121,6 +121,9 @@ impl<'a> Tokenizer<'a> {
                     }
                     return CSSToken::DelimToken { value: v };
                 }
+                if v == '\u{005b}' {
+                    return CSSToken::LeftSquareBracketToken;
+                }
                 return CSSToken::WhitespaceToken;
             }
             None => CSSToken::EOFToken,
@@ -771,6 +774,7 @@ pub enum CSSToken {
     AtKeywordToken {
         value: String,
     },
+    LeftSquareBracketToken,
 }
 
 #[derive(Debug, PartialEq, Eq)]
