@@ -3,14 +3,14 @@ use std::str::Chars;
 mod tests;
 
 pub struct Tokenizer<'a> {
-    process: PeekMoreIterator<Chars<'a>>,
+    process: PutBackPeekMore<'a>,
     parse_error: bool,
 }
 
 impl<'a> Tokenizer<'a> {
     fn new(input: &'a str) -> Self {
         Self {
-            process: input.chars().peekmore(),
+            process: PutBackPeekMore::new(input),
             parse_error: false,
         }
     }
@@ -65,7 +65,7 @@ impl<'a> Tokenizer<'a> {
                 }
                 if v == '\u{002b}' {
                     if self.would_start_number() {
-                        let _ = self.process.move_cursor_back();
+                        let _ = self.process.put_back(v);
                         return self.consume_numeric_token();
                     }
                     return CSSToken::DelimToken { value: v };
@@ -75,7 +75,7 @@ impl<'a> Tokenizer<'a> {
                 }
                 if v == '\u{002d}' {
                     if self.would_start_number() {
-                        let _ = self.process.move_cursor_back();
+                        let _ = self.process.put_back(v);
                         return self.consume_numeric_token();
                     }
                     if self.peek_twin() == (Some('\u{002d}'), Some('\u{003e}')) {
@@ -84,8 +84,17 @@ impl<'a> Tokenizer<'a> {
                         return CSSToken::CDCToken;
                     }
                     if self.would_start_ident_sequence() {
-                        let _ = self.process.move_cursor_back();
+                        let _ = self.process.put_back(v);
+                        return self.consume_ident_like_token();
                     }
+                    return CSSToken::DelimToken { value: v };
+                }
+                if v == '\u{002e}' {
+                    if self.would_start_number() {
+                        self.process.put_back(v);
+                        return self.consume_numeric_token();
+                    }
+                    return CSSToken::DelimToken { value: v };
                 }
                 return CSSToken::WhitespaceToken;
             }
@@ -415,7 +424,7 @@ impl<'a> Tokenizer<'a> {
                     self.process.next();
                     result.push(self.consume_escaped_code_point());
                 }
-                let _ = self.process.move_cursor_back();
+                let _ = self.process.put_back(v);
                 return result;
             }
             self.process.next();
@@ -749,4 +758,43 @@ pub struct Number {
 pub enum NumberType {
     Integer,
     Number,
+}
+
+pub struct PutBackPeekMore<'a> {
+    pub peek_more: PeekMoreIterator<Chars<'a>>,
+    pub put_back: Option<char>,
+}
+
+impl<'a> PutBackPeekMore<'a> {
+    fn new(input: &'a str) -> Self {
+        Self {
+            put_back: None,
+            peek_more: input.chars().peekmore(),
+        }
+    }
+
+    fn next(&mut self) -> Option<char> {
+        if let Some(v) = self.put_back {
+            let returned = v;
+            self.put_back = None;
+            return Some(v);
+        }
+        self.peek_more.next()
+    }
+
+    fn put_back(&mut self, input: char) {
+        self.put_back = Some(input);
+    }
+
+    fn peek(&mut self) -> Option<&char> {
+        self.peek_more.peek()
+    }
+
+    fn peek_amount(&mut self, amount: usize) -> &[Option<char>] {
+        self.peek_more.peek_amount(amount)
+    }
+
+    fn peek_nth(&mut self, amount: usize) -> Option<&char> {
+        self.peek_more.peek_nth(amount)
+    }
 }
