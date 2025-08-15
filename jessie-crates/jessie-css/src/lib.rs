@@ -63,8 +63,26 @@ impl<'a> Tokenizer<'a> {
                 }
                 if v == '\u{002b}' {
                     if self.would_start_number() {
-                        self.process.move_cursor_back();
+                        let _ = self.process.move_cursor_back();
                         return Ok(self.consume_numeric_token());
+                    }
+                    return Ok(CSSToken::DelimToken { value: v });
+                }
+                if v == '\u{002c}' {
+                    return Ok(CSSToken::CommaToken);
+                }
+                if v == '\u{002d}' {
+                    if self.would_start_number() {
+                        let _ = self.process.move_cursor_back();
+                        return Ok(self.consume_numeric_token());
+                    }
+                    if self.peek_twin() == (Some('\u{002d}'), Some('\u{003e}')) {
+                        self.process.next();
+                        self.process.next();
+                        return Ok(CSSToken::CDCToken);
+                    }
+                    if self.would_start_ident_sequence() {
+                        let _ = self.process.move_cursor_back();
                     }
                 }
                 return Err(CSSError::ParseError);
@@ -73,16 +91,96 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
-    // fn consume_number(&mut self) -> ();
+    fn consume_ident_like_token(&mut self) -> CSSToken {
+        let string = self.consume_ident_sequence();
+        if &string.to_lowercase() == "url" && self.process.peek() == Some(&'\u{0028}') {
+            self.process.next();
+
+            while let (Some(first), Some(second)) = self.peek_twin() {
+                if !(Self::is_whitespace(first) && Self::is_whitespace(second)) {
+                    break;
+                }
+                self.process.next();
+            }
+
+            if let (Some(first), Some(second)) = self.peek_twin() {
+                if (first == '\u{0022}' || first == '\u{0027}')
+                    || (Self::is_whitespace(first)
+                        && (second == '\u{0022}' || second == '\u{0027}'))
+                {
+                    return CSSToken::FunctionToken { value: string };
+                } else {
+                    return CSSToken::WhitespaceToken;
+                }
+            }
+        }
+        todo!();
+    }
+
+    fn consume_url_token(&mut self) -> CSSToken {
+        // TODO:FIX IMPLEMENTATION OF ERRORS
+        let url_token_val = String::new();
+        self.consume_whitespace();
+        loop {
+            let next = self.process.next();
+            if next == Some('\u{0029}') {
+                return CSSToken::URLToken {
+                    value: url_token_val,
+                };
+            }
+
+            if next.is_none() {
+                return CSSToken::URLToken {
+                    value: url_token_val,
+                };
+            }
+
+            if Self::is_whitespace(next.unwrap()) {
+                self.consume_whitespace();
+                if matches!(self.process.peek(), None | Some(&'\u{0029}')) {
+                    self.process.next();
+                }
+            }
+        }
+    }
 
     fn consume_numeric_token(&mut self) -> CSSToken {
+        let number = self.consume_number();
+        if self.would_start_ident_sequence() {
+            return CSSToken::DimensionToken {
+                flag: number.r#type,
+                value: number.value,
+                unit: self.consume_ident_sequence(),
+            };
+        }
+        if self.process.peek() == Some(&'\u{0025}') {
+            self.process.next();
+            return CSSToken::PercentageToken {
+                flag: number.r#type,
+                value: number.value,
+            };
+        }
+        CSSToken::NumberToken {
+            flag: number.r#type,
+            value: number.value,
+        }
+    }
+
+    fn consume_number(&mut self) -> Number {
         let mut r#type = NumberType::Integer;
         let mut repr = String::new();
-        let peek = self.process.peek();
 
-        if let Some(&v) = peek
+        if let Some(&v) = self.process.peek()
             && (v == '\u{002b}' || v == '\u{002d}')
         {
+            self.process.next();
+            repr.push(v);
+        }
+
+        while let Some(&v) = self.process.peek() {
+            if !Self::is_digit(v) {
+                break;
+            }
             self.process.next();
             repr.push(v);
         }
@@ -95,10 +193,12 @@ impl<'a> Tokenizer<'a> {
             repr.push(first);
             repr.push(second);
             r#type = NumberType::Number;
-            while let Some(&val) = self.process.peek()
-                && Self::is_digit(val)
-            {
-                repr.push(val);
+            while let Some(&v) = self.process.peek() {
+                if !Self::is_digit(v) {
+                    break;
+                }
+                self.process.next();
+                repr.push(v);
             }
         }
 
@@ -115,66 +215,20 @@ impl<'a> Tokenizer<'a> {
                 repr.push(third);
             }
             r#type = NumberType::Number;
-            while let Some(&val) = self.process.peek()
-                && Self::is_digit(val)
-            {
-                repr.push(val);
+            while let Some(&v) = self.process.peek() {
+                if !Self::is_digit(v) {
+                    break;
+                }
+                self.process.next();
+                repr.push(v);
             }
         }
 
-        CSSToken::WhitespaceToken
+        Number {
+            value: Self::string_to_number(repr),
+            r#type,
+        }
     }
-
-    // fn string_to_number(input: String) -> f64 {
-    //     let s: f64 = {
-    //         let mut val = 1.;
-    //         if input.contains('-') {
-    //             val = -1.;
-    //         }
-    //         val
-    //     };
-    //     let signpos: usize = {
-    //         let mut val = 0;
-    //         if input.contains('-') || input.contains('+') {
-    //             val = 1;
-    //         }
-    //         val
-    //     };
-
-    //     let i: f64 = {
-    //         let mut buf = String::new();
-    //         let mut from = input.chars();
-    //         from.nth(signpos);
-    //         for v in from {
-    //             if v == '\u{002e}' {
-    //                 break;
-    //             }
-
-    //             buf.push(v);
-    //         }
-    //         buf.parse::<f64>().unwrap()
-    //     };
-    //     let (f, d): (f64, f64) = {
-    //         let mut buf = String::new();
-    //         let dotpos = input.find('.');
-    //         if let Some(v) = dotpos {
-    //             let from = input.chars().nth(v);
-    //             for char in from {
-    //                 if !Self::is_digit(char) {
-    //                     break;
-    //                 }
-    //                 buf.push(char);
-    //             }
-    //         }
-    //         (buf.parse::<f64>().unwrap_or(0.), buf.len() as f64)
-    //     };
-    //     let t = s;
-    //     let e: f64 = {
-    //         let mut buf = String::new();
-    //     };
-
-    //     0.
-    // }
 
     fn string_to_number(input: String) -> f64 {
         let mut iter = input.chars().peekable();
@@ -294,14 +348,16 @@ impl<'a> Tokenizer<'a> {
             let (first, second) = self.peek_twin();
             if let Some(v) = first {
                 if Self::is_ident_code_point(first) {
-                    result.push(first.unwrap());
+                    result.push(v);
                 }
                 if Self::is_valid_escape(first, second) {
                     self.process.next();
                     result.push(self.consume_escaped_code_point());
                 }
+                let _ = self.process.move_cursor_back();
                 return result;
             }
+            self.process.next();
         }
     }
 
@@ -571,16 +627,44 @@ pub enum CSSError {
     ParseError,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq)]
 pub enum CSSToken {
     EOFToken,
     WhitespaceToken,
-    StringToken { string: String },
+    StringToken {
+        string: String,
+    },
     BadStringToken,
-    HashToken { flag: HashTokenFlag, value: String },
-    DelimToken { value: char },
+    HashToken {
+        flag: HashTokenFlag,
+        value: String,
+    },
+    DelimToken {
+        value: char,
+    },
     LParenToken,
     RParenToken,
+    NumberToken {
+        flag: NumberType,
+        value: f64,
+    },
+    PercentageToken {
+        flag: NumberType,
+        value: f64,
+    },
+    DimensionToken {
+        flag: NumberType,
+        value: f64,
+        unit: String,
+    },
+    CommaToken,
+    CDCToken,
+    FunctionToken {
+        value: String,
+    },
+    URLToken {
+        value: String,
+    },
 }
 
 #[derive(Debug, PartialEq, Eq)]
@@ -589,9 +673,9 @@ pub enum HashTokenFlag {
     Unrestricted,
 }
 
-#[derive(Debug, PartialEq, Eq)]
+#[derive(Debug, PartialEq)]
 pub struct Number {
-    value: i64,
+    value: f64,
     r#type: NumberType,
 }
 
