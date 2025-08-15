@@ -135,7 +135,16 @@ impl<'a> Tokenizer<'a> {
                     self.parse_error();
                     return CSSToken::DelimToken { value: v };
                 }
-                return CSSToken::WhitespaceToken;
+                if v == '\u{005d}' {
+                    return CSSToken::RightSquareBracketToken;
+                }
+                if v == '\u{007b}' {
+                    return CSSToken::LeftCurlyBracketToken;
+                }
+                if v == '\u{007d}' {
+                    return CSSToken::RightCurlyBracketToken;
+                }
+                CSSToken::DelimToken { value: v }
             }
             None => CSSToken::EOFToken,
         }
@@ -786,6 +795,9 @@ pub enum CSSToken {
         value: String,
     },
     LeftSquareBracketToken,
+    RightSquareBracketToken,
+    LeftCurlyBracketToken,
+    RightCurlyBracketToken,
 }
 
 #[derive(Debug, PartialEq, Eq)]
