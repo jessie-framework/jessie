@@ -4,22 +4,24 @@ mod tests;
 
 pub struct Tokenizer<'a> {
     process: PeekMoreIterator<Chars<'a>>,
+    parse_error: bool,
 }
 
 impl<'a> Tokenizer<'a> {
     fn new(input: &'a str) -> Self {
         Self {
             process: input.chars().peekmore(),
+            parse_error: false,
         }
     }
 
-    fn consume_token(&mut self) -> Result<CSSToken, CSSError> {
+    fn consume_token(&mut self) -> CSSToken {
         // https://www.w3.org/TR/css-syntax-3/#consume-token
 
         // This section describes how to consume a token from a stream of code points. It will return a single token of any type.
 
         // Consume comments.
-        self.consume_comments()?;
+        self.consume_comments();
 
         match self.process.peek() {
             Some(v) => {
@@ -28,7 +30,7 @@ impl<'a> Tokenizer<'a> {
                     // Consume as much whitespace as possible. Return a <whitespace-token>.
                     self.process.next();
                     self.consume_whitespace();
-                    return Ok(CSSToken::WhitespaceToken);
+                    return CSSToken::WhitespaceToken;
                 }
                 if v == '\u{0022}' {
                     self.process.next();
@@ -45,9 +47,9 @@ impl<'a> Tokenizer<'a> {
                             flag = HashTokenFlag::Id;
                         }
                         let value = self.consume_ident_sequence();
-                        return Ok(CSSToken::HashToken { flag, value });
+                        return CSSToken::HashToken { flag, value };
                     }
-                    return Ok(CSSToken::DelimToken { value: v });
+                    return CSSToken::DelimToken { value: v };
                 }
                 if v == '\u{0027}' {
                     self.process.next();
@@ -55,39 +57,39 @@ impl<'a> Tokenizer<'a> {
                 }
                 if v == '\u{0028}' {
                     self.process.next();
-                    return Ok(CSSToken::LParenToken);
+                    return CSSToken::LParenToken;
                 }
                 if v == '\u{0029}' {
                     self.process.next();
-                    return Ok(CSSToken::RParenToken);
+                    return CSSToken::RParenToken;
                 }
                 if v == '\u{002b}' {
                     if self.would_start_number() {
                         let _ = self.process.move_cursor_back();
-                        return Ok(self.consume_numeric_token());
+                        return self.consume_numeric_token();
                     }
-                    return Ok(CSSToken::DelimToken { value: v });
+                    return CSSToken::DelimToken { value: v };
                 }
                 if v == '\u{002c}' {
-                    return Ok(CSSToken::CommaToken);
+                    return CSSToken::CommaToken;
                 }
                 if v == '\u{002d}' {
                     if self.would_start_number() {
                         let _ = self.process.move_cursor_back();
-                        return Ok(self.consume_numeric_token());
+                        return self.consume_numeric_token();
                     }
                     if self.peek_twin() == (Some('\u{002d}'), Some('\u{003e}')) {
                         self.process.next();
                         self.process.next();
-                        return Ok(CSSToken::CDCToken);
+                        return CSSToken::CDCToken;
                     }
                     if self.would_start_ident_sequence() {
                         let _ = self.process.move_cursor_back();
                     }
                 }
-                return Err(CSSError::ParseError);
+                return CSSToken::WhitespaceToken;
             }
-            None => Ok(CSSToken::EOFToken),
+            None => CSSToken::EOFToken,
         }
     }
 
@@ -407,7 +409,7 @@ impl<'a> Tokenizer<'a> {
         input >= '\u{0080}'
     }
 
-    fn consume_string_token(&mut self, code_point: char) -> Result<CSSToken, CSSError> {
+    fn consume_string_token(&mut self, code_point: char) -> CSSToken {
         // https://www.w3.org/TR/css-syntax-3/#consume-string-token
         //This algorithm may be called with an ending code point, which denotes the code point that ends the string. If an ending code point is not specified, the current input code point is used.
 
@@ -420,7 +422,7 @@ impl<'a> Tokenizer<'a> {
                 '\u{000a}' => {
                     //This is a parse error. Reconsume the current input code point, create a <bad-string-token>, and return it.
                     self.process.next();
-                    return Ok(CSSToken::BadStringToken);
+                    return CSSToken::BadStringToken;
                 }
 
                 //U+005C REVERSE SOLIDUS (\)
@@ -445,7 +447,7 @@ impl<'a> Tokenizer<'a> {
                 x => {
                     if *x == code_point {
                         self.process.next();
-                        return Ok(CSSToken::StringToken { string: out });
+                        return CSSToken::StringToken { string: out };
                     }
 
                     out.push(*x);
@@ -455,7 +457,8 @@ impl<'a> Tokenizer<'a> {
             }
         }
         // EOF :  This is a parse error. Return the <string-token>.
-        Ok(CSSToken::StringToken { string: out })
+        self.parse_error();
+        CSSToken::StringToken { string: out }
     }
 
     fn peek_twin(&mut self) -> (Option<char>, Option<char>) {
@@ -577,13 +580,13 @@ impl<'a> Tokenizer<'a> {
     //     }
     // }
 
-    fn consume_comments(&mut self) -> Result<(), CSSError> {
+    fn consume_comments(&mut self) {
         // https://www.w3.org/TR/css-syntax-3/#consume-comment
         // This section describes how to consume comments from a stream of code points. It returns nothing.
         // If the next two input code point are U+002F SOLIDUS (/) followed by a U+002A ASTERISK (*),
         let (mut first, mut second) = self.peek_twin();
         if !(first == Some('\u{002f}') && second == Some('\u{002a}')) {
-            return Ok(());
+            return;
         }
 
         self.process.next();
@@ -593,38 +596,38 @@ impl<'a> Tokenizer<'a> {
             (first, second) = self.peek_twin();
 
             if first.is_none() {
-                return Err(CSSError::ParseError);
+                self.parse_error();
+                return;
             }
 
             if first == Some('\u{002a}') && second == Some('\u{002f}') {
                 println!("i was true");
                 self.process.next();
                 self.process.next();
-                self.consume_comments()?;
-                return Ok(());
+                self.consume_comments();
+                return;
             }
 
             self.process.next();
         }
     }
 
-    fn tokenize(&mut self) -> Result<Vec<CSSToken>, CSSError> {
+    fn parse_error(&mut self) {
+        self.parse_error = true;
+    }
+
+    fn tokenize(&mut self) -> Vec<CSSToken> {
         let mut out = vec![];
         loop {
-            let tok = self.consume_token()?;
+            let tok = self.consume_token();
             if tok == CSSToken::EOFToken {
                 out.push(CSSToken::EOFToken);
                 break;
             }
             out.push(tok);
         }
-        Ok(out)
+        out
     }
-}
-
-#[derive(Debug, PartialEq, Eq)]
-pub enum CSSError {
-    ParseError,
 }
 
 #[derive(Debug, PartialEq)]
