@@ -8,14 +8,14 @@ pub struct Tokenizer<'a> {
 }
 
 impl<'a> Tokenizer<'a> {
-    fn new(input: &'a str) -> Self {
+    pub fn new(input: &'a str) -> Self {
         Self {
             process: PutBackPeekMore::new(input),
             parse_error: false,
         }
     }
 
-    fn consume_token(&mut self) -> CSSToken {
+    pub fn consume_token(&mut self) -> CSSToken {
         // https://www.w3.org/TR/css-syntax-3/#consume-token
 
         // This section describes how to consume a token from a stream of code points. It will return a single token of any type.
@@ -158,11 +158,11 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
-    fn is_parse_error(&mut self) -> bool {
+    pub fn is_parse_error(&mut self) -> bool {
         self.parse_error
     }
 
-    fn consume_ident_like_token(&mut self) -> CSSToken {
+    pub fn consume_ident_like_token(&mut self) -> CSSToken {
         let string = self.consume_ident_sequence();
         if &string.to_lowercase() == "url" && self.process.peek() == Some(&'\u{0028}') {
             self.process.next();
@@ -192,7 +192,7 @@ impl<'a> Tokenizer<'a> {
         CSSToken::IdentToken { value: string }
     }
 
-    fn consume_url_token(&mut self) -> CSSToken {
+    pub fn consume_url_token(&mut self) -> CSSToken {
         let mut url_token_val = String::new();
         self.consume_whitespace();
         loop {
@@ -253,14 +253,14 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
-    fn is_none_printable_code_point(input: char) -> bool {
+    pub fn is_none_printable_code_point(input: char) -> bool {
         ('\u{0000}' <= input && '\u{0008}' >= input)
             || (input == '\u{000b}')
             || ('\u{000e}' <= input && '\u{001f}' >= input)
             || (input == '\u{007f}')
     }
 
-    fn consume_remnants_of_bad_url(&mut self) {
+    pub fn consume_remnants_of_bad_url(&mut self) {
         loop {
             let next = self.process.next();
             if next == Some('\u{0029}') {
@@ -274,7 +274,7 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
-    fn consume_numeric_token(&mut self) -> CSSToken {
+    pub fn consume_numeric_token(&mut self) -> CSSToken {
         let number = self.consume_number();
         if self.would_start_ident_sequence() {
             return CSSToken::DimensionToken {
@@ -296,7 +296,7 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
-    fn consume_number(&mut self) -> Number {
+    pub fn consume_number(&mut self) -> Number {
         let mut r#type = NumberType::Integer;
         let mut repr = String::new();
 
@@ -360,7 +360,7 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
-    fn string_to_number(input: String) -> f64 {
+    pub fn string_to_number(input: String) -> f64 {
         let mut iter = input.chars().peekable();
         let mut _sign: Option<char> = None;
         if let Some(&v) = iter.peek()
@@ -442,15 +442,15 @@ impl<'a> Tokenizer<'a> {
         s * (i + (f * 10.0_f64.powf(-d))) * 10.0_f64.powf(t * e)
     }
 
-    fn is_plus_or_minus(input: char) -> bool {
+    pub fn is_plus_or_minus(input: char) -> bool {
         input == '\u{002d}' || input == '\u{002b}'
     }
 
-    fn is_e(input: char) -> bool {
+    pub fn is_e(input: char) -> bool {
         input == '\u{0045}' || input == '\u{0065}'
     }
 
-    fn would_start_number(&mut self) -> bool {
+    pub fn would_start_number(&mut self) -> bool {
         let peek = self.process.peek_amount(3);
         let first = peek[0];
         if let Some(v) = first {
@@ -472,7 +472,7 @@ impl<'a> Tokenizer<'a> {
         false
     }
 
-    fn consume_ident_sequence(&mut self) -> String {
+    pub fn consume_ident_sequence(&mut self) -> String {
         let mut result = String::new();
         loop {
             let (first, second) = self.peek_twin();
@@ -491,7 +491,7 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
-    fn would_start_ident_sequence(&mut self) -> bool {
+    pub fn would_start_ident_sequence(&mut self) -> bool {
         let peek = self.process.peek_amount(3);
         if let Some(first) = peek[0] {
             if first == '\u{002d}' {
@@ -510,34 +510,34 @@ impl<'a> Tokenizer<'a> {
         false
     }
 
-    fn is_ident_code_point(input: Option<char>) -> bool {
+    pub fn is_ident_code_point(input: Option<char>) -> bool {
         if let Some(v) = input {
             return Self::is_ident_start_code_point(v) || Self::is_digit(v) || v == '\u{002d}';
         }
         false
     }
 
-    fn is_ident_start_code_point(input: char) -> bool {
+    pub fn is_ident_start_code_point(input: char) -> bool {
         Self::is_letter(input) || Self::is_none_ascii(input) || input == '\u{0080}'
     }
 
-    fn is_letter(input: char) -> bool {
+    pub fn is_letter(input: char) -> bool {
         Self::is_uppercase_letter(input) || Self::is_lowercase_letter(input)
     }
 
-    fn is_uppercase_letter(input: char) -> bool {
+    pub fn is_uppercase_letter(input: char) -> bool {
         input >= '\u{0041}' && input <= '\u{005a}'
     }
 
-    fn is_lowercase_letter(input: char) -> bool {
+    pub fn is_lowercase_letter(input: char) -> bool {
         input >= '\u{0061}' && input <= '\u{007a}'
     }
 
-    fn is_none_ascii(input: char) -> bool {
+    pub fn is_none_ascii(input: char) -> bool {
         input >= '\u{0080}'
     }
 
-    fn consume_string_token(&mut self, code_point: char) -> CSSToken {
+    pub fn consume_string_token(&mut self, code_point: char) -> CSSToken {
         // https://www.w3.org/TR/css-syntax-3/#consume-string-token
         //This algorithm may be called with an ending code point, which denotes the code point that ends the string. If an ending code point is not specified, the current input code point is used.
 
@@ -589,14 +589,14 @@ impl<'a> Tokenizer<'a> {
         CSSToken::StringToken { string: out }
     }
 
-    fn peek_twin(&mut self) -> (Option<char>, Option<char>) {
+    pub fn peek_twin(&mut self) -> (Option<char>, Option<char>) {
         let peek = self.process.peek_amount(2);
         let first = peek[0];
         let second = peek[1];
         (first, second)
     }
 
-    fn consume_escaped_code_point(&mut self) -> char {
+    pub fn consume_escaped_code_point(&mut self) -> char {
         let next = self.process.next();
         match next {
             Some(v) => {
@@ -637,33 +637,33 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
-    fn max_allowed_code_point() -> u32 {
+    pub fn max_allowed_code_point() -> u32 {
         0x10ffff
     }
 
-    fn is_surrogate(input: u32) -> bool {
+    pub fn is_surrogate(input: u32) -> bool {
         Self::is_leading_surrogate(input) || Self::is_trailing_surrogate(input)
     }
 
-    fn is_leading_surrogate(input: u32) -> bool {
+    pub fn is_leading_surrogate(input: u32) -> bool {
         0xd800 <= input && 0xdbff >= input
     }
 
-    fn is_trailing_surrogate(input: u32) -> bool {
+    pub fn is_trailing_surrogate(input: u32) -> bool {
         0xdc00 <= input && 0xdfff >= input
     }
 
-    fn code_point_to_char(input: &str) -> char {
+    pub fn code_point_to_char(input: &str) -> char {
         char::from_u32(u32::from_str_radix(input, 16).unwrap()).unwrap()
     }
 
-    fn is_digit(input: char) -> bool {
+    pub fn is_digit(input: char) -> bool {
         // https://www.w3.org/TR/css-syntax-3/#tokenizer-definitions
         // A code point between U+0030 DIGIT ZERO (0) and U+0039 DIGIT NINE (9) inclusive.
         input <= '\u{0039}' && input >= '\u{0030}'
     }
 
-    fn is_hex_digit(input: char) -> bool {
+    pub fn is_hex_digit(input: char) -> bool {
         // https://www.w3.org/TR/css-syntax-3/#tokenizer-definitions
         // A digit, or a code point between U+0041 LATIN CAPITAL LETTER A (A) and U+0046 LATIN CAPITAL LETTER F (F) inclusive, or a code point between U+0061 LATIN SMALL LETTER A (a) and U+0066 LATIN SMALL LETTER F (f) inclusive.
         Self::is_digit(input)
@@ -671,7 +671,7 @@ impl<'a> Tokenizer<'a> {
                 || input >= '\u{0061}' && input <= '\u{0066}')
     }
 
-    fn is_valid_escape(first: Option<char>, second: Option<char>) -> bool {
+    pub fn is_valid_escape(first: Option<char>, second: Option<char>) -> bool {
         // https://www.w3.org/TR/css-syntax-3/#starts-with-a-valid-escape
 
         // If the first code point is not U+005C REVERSE SOLIDUS (\), return false.
@@ -688,7 +688,7 @@ impl<'a> Tokenizer<'a> {
         true
     }
 
-    fn consume_whitespace(&mut self) {
+    pub fn consume_whitespace(&mut self) {
         while !(self.process.peek().is_none() || Self::is_whitespace(*self.process.peek().unwrap()))
         {
             println!("consuming");
@@ -697,18 +697,11 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
-    fn is_whitespace(input: char) -> bool {
+    pub fn is_whitespace(input: char) -> bool {
         input == '\u{000a}' || input == '\u{0009}' || input == '\u{0020}'
     }
 
-    // fn consume_whitespace(&mut self) {
-    //     while self.current().is_some() && self.current().unwrap().is_whitespace() {
-    //         self.pos += 1;
-    //         println!("{:#?}", self.current());
-    //     }
-    // }
-
-    fn consume_comments(&mut self) {
+    pub fn consume_comments(&mut self) {
         // https://www.w3.org/TR/css-syntax-3/#consume-comment
         // This section describes how to consume comments from a stream of code points. It returns nothing.
         // If the next two input code point are U+002F SOLIDUS (/) followed by a U+002A ASTERISK (*),
@@ -740,11 +733,11 @@ impl<'a> Tokenizer<'a> {
         }
     }
 
-    fn parse_error(&mut self) {
+    pub fn parse_error(&mut self) {
         self.parse_error = true;
     }
 
-    fn tokenize(&mut self) -> Vec<CSSToken> {
+    pub fn tokenize(&mut self) -> Vec<CSSToken> {
         let mut out = vec![];
         loop {
             let tok = self.consume_token();
@@ -836,14 +829,14 @@ pub struct PutBackPeekMore<'a> {
 }
 
 impl<'a> PutBackPeekMore<'a> {
-    fn new(input: &'a str) -> Self {
+    pub fn new(input: &'a str) -> Self {
         Self {
             put_back: None,
             peek_more: input.chars().peekmore(),
         }
     }
 
-    fn next(&mut self) -> Option<char> {
+    pub fn next(&mut self) -> Option<char> {
         if let Some(v) = self.put_back {
             let returned = v;
             self.put_back = None;
@@ -852,19 +845,19 @@ impl<'a> PutBackPeekMore<'a> {
         self.peek_more.next()
     }
 
-    fn put_back(&mut self, input: char) {
+    pub fn put_back(&mut self, input: char) {
         self.put_back = Some(input);
     }
 
-    fn peek(&mut self) -> Option<&char> {
+    pub fn peek(&mut self) -> Option<&char> {
         self.peek_more.peek()
     }
 
-    fn peek_amount(&mut self, amount: usize) -> &[Option<char>] {
+    pub fn peek_amount(&mut self, amount: usize) -> &[Option<char>] {
         self.peek_more.peek_amount(amount)
     }
 
-    fn peek_nth(&mut self, amount: usize) -> Option<&char> {
+    pub fn peek_nth(&mut self, amount: usize) -> Option<&char> {
         self.peek_more.peek_nth(amount)
     }
 }
