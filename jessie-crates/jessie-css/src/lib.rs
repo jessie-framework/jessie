@@ -65,12 +65,12 @@ impl<'a> Tokenizer<'a> {
                 // U+0028 LEFT PARENTHESIS (()
                 if v == '\u{0028}' {
                     // Return a <(-token>.
-                    return CSSToken::LParenToken;
+                    return CSSToken::LeftParenthesisToken;
                 }
                 // U+0029 RIGHT PARENTHESIS ())
                 if v == '\u{0029}' {
                     // Return a <)-token>.
-                    return CSSToken::RParenToken;
+                    return CSSToken::RightParenthesisToken;
                 }
                 // U+002B PLUS SIGN (+)
                 if v == '\u{002b}' {
@@ -1052,8 +1052,8 @@ pub enum CSSToken {
     DelimToken {
         value: char,
     },
-    LParenToken,
-    RParenToken,
+    LeftParenthesisToken,
+    RightParenthesisToken,
     NumberToken {
         flag: NumberType,
         value: f64,
