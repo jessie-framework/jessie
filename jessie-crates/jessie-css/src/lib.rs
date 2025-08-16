@@ -1,5 +1,5 @@
 use peekmore::{PeekMore, PeekMoreIterator};
-use std::str::Chars;
+use std::{borrow::Cow, str::Chars};
 mod tests;
 
 pub struct Tokenizer<'a> {
@@ -24,8 +24,8 @@ impl<'a> Tokenizer<'a> {
         self.consume_comments();
 
         // Consume the next input code point.
-        match self.process.peek() {
-            Some(&v) => {
+        match self.process.next() {
+            Some(v) => {
                 // whitespace
                 if Self::is_whitespace(v) {
                     // Consume as much whitespace as possible. Return a <whitespace-token>.
@@ -131,7 +131,7 @@ impl<'a> Tokenizer<'a> {
                 // U+003C LESS-THAN SIGN (<)
                 if v == '\u{003c}' {
                     // If the next 3 input code points are U+0021 EXCLAMATION MARK U+002D HYPHEN-MINUS U+002D HYPHEN-MINUS (!--), consume them and return a <CDO-token>.
-                    if *self.process.peek_amount(3)
+                    if self.process.peek_amount(3)
                         == [Some('\u{0021}'), Some('\u{002d}'), Some('\u{002d}')]
                     {
                         self.process.next();
@@ -469,7 +469,7 @@ impl<'a> Tokenizer<'a> {
         }
 
         // If the next 2 or 3 input code points are U+0045 LATIN CAPITAL LETTER E (E) or U+0065 LATIN SMALL LETTER E (e), optionally followed by U+002D HYPHEN-MINUS (-) or U+002B PLUS SIGN (+), followed by a digit, then:
-        if let &[Some(first), Some(second), Some(third)] = self.process.peek_amount(3)
+        if let &[Some(first), Some(second), Some(third)] = self.process.peek_amount(3).as_slice()
             && ((Self::is_e(first) && Self::is_digit(second))
                 || (Self::is_e(first) && Self::is_plus_or_minus(second) && Self::is_digit(third)))
         {
@@ -746,6 +746,8 @@ impl<'a> Tokenizer<'a> {
     }
 
     pub fn is_ident_code_point(input: Option<char>) -> bool {
+        // https://www.w3.org/TR/css-syntax-3/#tokenizer-definitions
+        // An ident-start code point, a digit, or U+002D HYPHEN-MINUS (-).
         if let Some(v) = input {
             return Self::is_ident_start_code_point(v) || Self::is_digit(v) || v == '\u{002d}';
         }
@@ -753,22 +755,32 @@ impl<'a> Tokenizer<'a> {
     }
 
     pub fn is_ident_start_code_point(input: char) -> bool {
+        // https://www.w3.org/TR/css-syntax-3/#tokenizer-definitions
+        // A letter, a non-ASCII code point, or U+005F LOW LINE (_).
         Self::is_letter(input) || Self::is_none_ascii(input) || input == '\u{0080}'
     }
 
     pub fn is_letter(input: char) -> bool {
+        // https://www.w3.org/TR/css-syntax-3/#tokenizer-definitions
+        // An uppercase letter or a lowercase letter.
         Self::is_uppercase_letter(input) || Self::is_lowercase_letter(input)
     }
 
     pub fn is_uppercase_letter(input: char) -> bool {
-        input >= '\u{0041}' && input <= '\u{005a}'
+        // https://www.w3.org/TR/css-syntax-3/#tokenizer-definitions
+        // A code point between U+0041 LATIN CAPITAL LETTER A (A) and U+005A LATIN CAPITAL LETTER Z (Z) inclusive.
+        ('\u{0041}'..='\u{005a}').contains(&input)
     }
 
     pub fn is_lowercase_letter(input: char) -> bool {
-        input >= '\u{0061}' && input <= '\u{007a}'
+        // https://www.w3.org/TR/css-syntax-3/#tokenizer-definitions
+        // A code point between U+0061 LATIN SMALL LETTER A (a) and U+007A LATIN SMALL LETTER Z (z) inclusive.
+        ('\u{0061}'..='\u{007a}').contains(&input)
     }
 
     pub fn is_none_ascii(input: char) -> bool {
+        // https://www.w3.org/TR/css-syntax-3/#tokenizer-definitions
+        // A code point with a value equal to or greater than U+0080 <control>.
         input >= '\u{0080}'
     }
 
@@ -806,17 +818,16 @@ impl<'a> Tokenizer<'a> {
             // U+005C REVERSE SOLIDUS (\)
             if next == Some('\u{005c}') {
                 // If the next input code point is EOF, do nothing.
-                if self.process.peek().is_none() {}
-
+                if self.process.peek().is_none() {
+                }
                 // Otherwise, if the next input code point is a newline, consume it.
-                if let Some(&v) = self.process.peek()
+                else if let Some(&v) = self.process.peek()
                     && Self::is_newline(v)
                 {
                     self.process.next();
                 }
-
                 // Otherwise, (the stream starts with a valid escape) consume an escaped code point and append the returned code point to the <string-token>’s value.
-                if let Some(&v) = self.process.peek()
+                else if let Some(&v) = self.process.peek()
                     && Self::is_valid_escape(Some('\u{005c}'), Some(v))
                 {
                     out.push(self.consume_escaped_code_point())
@@ -832,6 +843,8 @@ impl<'a> Tokenizer<'a> {
     }
 
     pub fn is_newline(input: char) -> bool {
+        // https://www.w3.org/TR/css-syntax-3/#tokenizer-definitions
+        // U+000A LINE FEED.
         input == '\u{000a}'
     }
 
@@ -843,60 +856,82 @@ impl<'a> Tokenizer<'a> {
     }
 
     pub fn consume_escaped_code_point(&mut self) -> char {
+        // https://www.w3.org/TR/css-syntax-3/#consume-escaped-code-point
+
+        // Consume the next input code point.
         let next = self.process.next();
-        match next {
-            Some(v) => {
-                if Self::is_hex_digit(v) {
-                    let mut out = String::with_capacity(6);
-                    out.push(v);
-                    loop {
-                        let peek = self.process.peek();
-                        match peek {
-                            Some(v) => {
-                                if Self::is_hex_digit(*v) && out.len() != 6 {
-                                    out.push(*v);
-                                    self.process.next();
-                                } else {
-                                    if Self::is_whitespace(*v) {
-                                        self.process.next();
-                                    }
-                                    let interpret = u32::from_str_radix(&out, 16).unwrap();
-                                    if interpret == 0
-                                        || Self::is_surrogate(interpret)
-                                        || interpret > Self::max_allowed_code_point()
-                                    {
-                                        return '\u{fffd}';
-                                    }
-                                    return Self::code_point_to_char(&out);
-                                }
-                            }
-                            None => return Self::code_point_to_char(&out),
-                        }
-                    }
-                } else {
-                    return v;
-                }
+
+        // hex digit
+        if let Some(v) = next
+            && Self::is_hex_digit(v)
+        {
+            // Consume as many hex digits as possible, but no more than 5.
+            let mut digits = String::new();
+            digits.push(v);
+
+            while let Some(&peek) = self.process.peek()
+                && Self::is_hex_digit(peek)
+                && digits.len() <= 6
+            {
+                digits.push(peek);
+                self.process.next();
             }
-            None => {
+
+            // If the next input code point is whitespace, consume it as well.
+            if let Some(&peek) = self.process.peek()
+                && Self::is_whitespace(peek)
+            {
+                self.process.next();
+            }
+
+            // Interpret the hex digits as a hexadecimal number.
+            let parsed = u32::from_str_radix(&digits, 16).unwrap();
+
+            // If this number is zero, or is for a surrogate, or is greater than the maximum allowed code point,
+            if parsed == 0 || Self::is_surrogate(parsed) || parsed > Self::max_allowed_code_point()
+            {
+                // return U+FFFD REPLACEMENT CHARACTER (�).
                 return '\u{fffd}';
             }
+
+            // 	Otherwise, return the code point with that value.
+            return char::from_u32(parsed).unwrap();
         }
+
+        // EOF
+        if next.is_none() {
+            // This is a parse error. Return U+FFFD REPLACEMENT CHARACTER (�).
+            self.parse_error();
+            return '\u{fffd}';
+        }
+
+        // anything else
+        // Return the current input code point.
+        next.unwrap()
     }
 
     pub fn max_allowed_code_point() -> u32 {
+        // https://www.w3.org/TR/css-syntax-3/#tokenizer-definitions
+        // The greatest code point defined by Unicode: U+10FFFF.
         0x10ffff
     }
 
     pub fn is_surrogate(input: u32) -> bool {
+        // https://infra.spec.whatwg.org/#surrogate
+        // A surrogate is a leading surrogate or a trailing surrogate.
         Self::is_leading_surrogate(input) || Self::is_trailing_surrogate(input)
     }
 
     pub fn is_leading_surrogate(input: u32) -> bool {
-        0xd800 <= input && 0xdbff >= input
+        // https://infra.spec.whatwg.org/#surrogate
+        // A leading surrogate is a code point that is in the range U+D800 to U+DBFF, inclusive.
+        (0xd800..=0xdbff).contains(&input)
     }
 
     pub fn is_trailing_surrogate(input: u32) -> bool {
-        0xdc00 <= input && 0xdfff >= input
+        // https://infra.spec.whatwg.org/#surrogate
+        // A trailing surrogate is a code point that is in the range U+DC00 to U+DFFF, inclusive.
+        (0xdc00..=0xdfff).contains(&input)
     }
 
     pub fn code_point_to_char(input: &str) -> char {
@@ -906,15 +941,15 @@ impl<'a> Tokenizer<'a> {
     pub fn is_digit(input: char) -> bool {
         // https://www.w3.org/TR/css-syntax-3/#tokenizer-definitions
         // A code point between U+0030 DIGIT ZERO (0) and U+0039 DIGIT NINE (9) inclusive.
-        input <= '\u{0039}' && input >= '\u{0030}'
+        ('\u{0030}'..='\u{0039}').contains(&input)
     }
 
     pub fn is_hex_digit(input: char) -> bool {
         // https://www.w3.org/TR/css-syntax-3/#tokenizer-definitions
         // A digit, or a code point between U+0041 LATIN CAPITAL LETTER A (A) and U+0046 LATIN CAPITAL LETTER F (F) inclusive, or a code point between U+0061 LATIN SMALL LETTER A (a) and U+0066 LATIN SMALL LETTER F (f) inclusive.
         Self::is_digit(input)
-            || (input >= '\u{0041}' && input <= '\u{0046}'
-                || input >= '\u{0061}' && input <= '\u{0066}')
+            || ('\u{0041}'..='\u{0046}').contains(&input)
+            || ('\u{0061}'..='\u{0066}').contains(&input)
     }
 
     pub fn is_valid_escape(first: Option<char>, second: Option<char>) -> bool {
@@ -926,7 +961,7 @@ impl<'a> Tokenizer<'a> {
         }
 
         //Otherwise, if the second code point is a newline, return false.
-        if second == Some('\n') {
+        if second == Some('\u{000a}') {
             return false;
         }
 
@@ -935,22 +970,25 @@ impl<'a> Tokenizer<'a> {
     }
 
     pub fn consume_whitespace(&mut self) {
-        while !(self.process.peek().is_none() || Self::is_whitespace(*self.process.peek().unwrap()))
-        {
-            println!("consuming");
-            println!("{:#?}", self.process.peek());
+        while let Some(&v) = self.process.peek() {
+            if !Self::is_whitespace(v) {
+                break;
+            }
+            println!("consuming {v}");
             self.process.next();
         }
     }
 
     pub fn is_whitespace(input: char) -> bool {
+        // https://www.w3.org/TR/css-syntax-3/#tokenizer-definitions
+        // A newline, U+0009 CHARACTER TABULATION, or U+0020 SPACE.
         input == '\u{000a}' || input == '\u{0009}' || input == '\u{0020}'
     }
 
     pub fn consume_comments(&mut self) {
         // https://www.w3.org/TR/css-syntax-3/#consume-comment
         // This section describes how to consume comments from a stream of code points. It returns nothing.
-        // If the next two input code point are U+002F SOLIDUS (/) followed by a U+002A ASTERISK (*),
+        // If the next two input code point are U+002F SOLIDUS (/) followed by a U+002A ASTERISK (*), consume them and all following code points up to and including the first U+002A ASTERISK (*) followed by a U+002F SOLIDUS (/), or up to an EOF code point. Return to the start of this step.
         let (mut first, mut second) = self.peek_twin();
         if !(first == Some('\u{002f}') && second == Some('\u{002a}')) {
             return;
@@ -962,7 +1000,8 @@ impl<'a> Tokenizer<'a> {
         loop {
             (first, second) = self.peek_twin();
 
-            if first.is_none() {
+            if first.is_none() || second.is_none() {
+                // If the preceding paragraph ended by consuming an EOF code point, this is a parse error.
                 self.parse_error();
                 return;
             }
@@ -972,6 +1011,7 @@ impl<'a> Tokenizer<'a> {
                 self.process.next();
                 self.process.next();
                 self.consume_comments();
+                // Return nothing.
                 return;
             }
 
@@ -1074,21 +1114,24 @@ pub struct PutBackPeekMore<'a> {
     pub put_back: Option<char>,
 }
 
-impl<'a> PutBackPeekMore<'a> {
-    pub fn new(input: &'a str) -> Self {
-        Self {
-            put_back: None,
-            peek_more: input.chars().peekmore(),
-        }
-    }
-
-    pub fn next(&mut self) -> Option<char> {
+impl<'a> Iterator for PutBackPeekMore<'a> {
+    type Item = char;
+    fn next(&mut self) -> Option<Self::Item> {
         if let Some(v) = self.put_back {
             let returned = v;
             self.put_back = None;
             return Some(v);
         }
         self.peek_more.next()
+    }
+}
+
+impl<'a> PutBackPeekMore<'a> {
+    pub fn new(input: &'a str) -> Self {
+        Self {
+            put_back: None,
+            peek_more: input.chars().peekmore(),
+        }
     }
 
     pub fn put_back(&mut self, input: char) {
@@ -1100,14 +1143,25 @@ impl<'a> PutBackPeekMore<'a> {
     }
 
     pub fn peek(&mut self) -> Option<&char> {
+        if self.put_back.is_some() {
+            return self.put_back.as_ref();
+        }
         self.peek_more.peek()
     }
 
-    pub fn peek_amount(&mut self, amount: usize) -> &[Option<char>] {
-        self.peek_more.peek_amount(amount)
+    pub fn peek_amount(&mut self, amount: usize) -> Vec<Option<char>> {
+        if self.put_back.is_some() {
+            let mut out = vec![self.put_back];
+            out.extend_from_slice(self.peek_more.peek_amount(amount - 1));
+            return out;
+        }
+        self.peek_more.peek_amount(amount).to_vec()
     }
 
     pub fn peek_nth(&mut self, amount: usize) -> Option<&char> {
+        if self.put_back.is_some() {
+            return self.peek_more.peek_nth(amount - 1);
+        }
         self.peek_more.peek_nth(amount)
     }
 }
