@@ -819,18 +819,21 @@ impl<'a> Tokenizer<'a> {
             if next == Some('\u{005c}') {
                 // If the next input code point is EOF, do nothing.
                 if self.process.peek().is_none() {
+                    continue;
                 }
                 // Otherwise, if the next input code point is a newline, consume it.
                 else if let Some(&v) = self.process.peek()
                     && Self::is_newline(v)
                 {
                     self.process.next();
+                    continue;
                 }
                 // Otherwise, (the stream starts with a valid escape) consume an escaped code point and append the returned code point to the <string-token>’s value.
                 else if let Some(&v) = self.process.peek()
                     && Self::is_valid_escape(Some('\u{005c}'), Some(v))
                 {
-                    out.push(self.consume_escaped_code_point())
+                    out.push(self.consume_escaped_code_point());
+                    continue;
                 }
             }
 
