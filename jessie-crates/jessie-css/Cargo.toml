@@ -8,5 +8,4 @@ license = "MIT"
 repository = "https://github.com/jessie-framework/jessie"
 
 [dependencies]
-itertools = "0.14.0"
-peekmore = "1.3.0"
+putbackpeekmore = "0.1.0"

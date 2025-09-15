@@ -1,16 +1,16 @@
-use peekmore::{PeekMore, PeekMoreIterator};
+use putbackpeekmore::PutBackPeekMore;
 use std::{borrow::Cow, str::Chars};
 mod tests;
 
 pub struct Tokenizer<'a> {
-    process: PutBackPeekMore<'a>,
+    process: PutBackPeekMore<Chars<'a>, 7>,
     parse_error: bool,
 }
 
 impl<'a> Tokenizer<'a> {
     pub fn new(input: &'a str) -> Self {
         Self {
-            process: PutBackPeekMore::new(input),
+            process: PutBackPeekMore::new(input.chars()),
             parse_error: false,
         }
     }
@@ -76,7 +76,7 @@ impl<'a> Tokenizer<'a> {
                 if v == '\u{002b}' {
                     // If the input stream starts with a number, reconsume the current input code point, consume a numeric token, and return it.
                     if self.would_start_number() {
-                        self.process.put_back(v);
+                        self.process.put_back(Some(v));
                         return self.consume_numeric_token();
                     }
                     // Otherwise, return a <delim-token> with its value set to the current input code point.
@@ -91,7 +91,7 @@ impl<'a> Tokenizer<'a> {
                 if v == '\u{002d}' {
                     // If the input stream starts with a number, reconsume the current input code point, consume a numeric token, and return it.
                     if self.would_start_number() {
-                        self.process.put_back(v);
+                        self.process.put_back(Some(v));
                         return self.consume_numeric_token();
                     }
                     // Otherwise, if the next 2 input code points are U+002D HYPHEN-MINUS U+003E GREATER-THAN SIGN (->), consume them and return a <CDC-token>.
@@ -102,7 +102,7 @@ impl<'a> Tokenizer<'a> {
                     }
                     // Otherwise, if the input stream starts with an ident sequence, reconsume the current input code point, consume an ident-like token, and return it.
                     if self.would_start_ident_sequence() {
-                        self.process.put_back(v);
+                        self.process.put_back(Some(v));
                         return self.consume_ident_like_token();
                     }
                     // Otherwise, return a <delim-token> with its value set to the current input code point.
@@ -112,7 +112,7 @@ impl<'a> Tokenizer<'a> {
                 if v == '\u{002e}' {
                     // If the input stream starts with a number, reconsume the current input code point, consume a numeric token, and return it.
                     if self.would_start_number() {
-                        self.process.put_back(v);
+                        self.process.put_back(Some(v));
                         return self.consume_numeric_token();
                     }
                     // Otherwise, return a <delim-token> with its value set to the current input code point.
@@ -131,7 +131,7 @@ impl<'a> Tokenizer<'a> {
                 // U+003C LESS-THAN SIGN (<)
                 if v == '\u{003c}' {
                     // If the next 3 input code points are U+0021 EXCLAMATION MARK U+002D HYPHEN-MINUS U+002D HYPHEN-MINUS (!--), consume them and return a <CDO-token>.
-                    if self.process.peek_amount(3)
+                    if self.process.peek_value(3)
                         == [Some('\u{0021}'), Some('\u{002d}'), Some('\u{002d}')]
                     {
                         self.process.next();
@@ -161,10 +161,10 @@ impl<'a> Tokenizer<'a> {
                 // U+005C REVERSE SOLIDUS (\)
                 if v == '\u{005c}' {
                     // If the input stream starts with a valid escape, reconsume the current input code point, consume an ident-like token, and return it.
-                    if let Some(&second) = self.process.peek()
+                    if let &Some(second) = self.process.peek()
                         && Self::is_valid_escape(Some(v), Some(second))
                     {
-                        self.process.put_back(v);
+                        self.process.put_back(Some(v));
                         return self.consume_ident_like_token();
                     }
                     // Otherwise, this is a parse error. Return a <delim-token> with its value set to the current input code point.
@@ -189,13 +189,13 @@ impl<'a> Tokenizer<'a> {
                 // digit
                 if Self::is_digit(v) {
                     // Reconsume the current input code point, consume a numeric token, and return it.
-                    self.process.put_back(v);
+                    self.process.put_back(Some(v));
                     return self.consume_numeric_token();
                 }
                 // ident-start code point
                 if Self::is_ident_start_code_point(v) {
                     // Reconsume the current input code point, consume an ident-like token, and return it.
-                    self.process.put_back(v);
+                    self.process.put_back(Some(v));
                     return self.consume_ident_like_token();
                 }
                 // anything else
@@ -220,7 +220,7 @@ impl<'a> Tokenizer<'a> {
         let string = self.consume_ident_sequence();
 
         // If string’s value is an ASCII case-insensitive match for "url", and the next input code point is U+0028 LEFT PARENTHESIS ((),
-        if &string.to_lowercase() == "url" && self.process.peek() == Some(&'\u{0028}') {
+        if &string.to_lowercase() == "url" && self.process.peek() == &Some('\u{0028}') {
             //  consume it.
             self.process.next();
 
@@ -246,7 +246,7 @@ impl<'a> Tokenizer<'a> {
             }
         }
         // Otherwise, if the next input code point is U+0028 LEFT PARENTHESIS ((), consume it.
-        if self.process.peek() == Some(&'\u{0028}') {
+        if self.process.peek() == &Some('\u{0028}') {
             self.process.next();
             // Create a <function-token> with its value set to string and return it.
             return CSSToken::FunctionToken { value: string };
@@ -293,7 +293,7 @@ impl<'a> Tokenizer<'a> {
 
                 // 	If the next input code point is U+0029 RIGHT PARENTHESIS ()) or EOF,
                 let peek = self.process.peek();
-                if matches!(peek, None | Some(&'\u{0029}')) {
+                if matches!(peek, None | Some('\u{0029}')) {
                     // 	consume it and return the <url-token>  (if EOF was encountered, this is a parse error);
                     if peek.is_none() {
                         self.parse_error();
@@ -328,7 +328,7 @@ impl<'a> Tokenizer<'a> {
             // U+005C REVERSE SOLIDUS (\)
             if next == Some('\u{005c}') {
                 // If the stream starts with a valid escape, consume an escaped code point and append the returned code point to the <url-token>’s value.
-                if let Some(&v) = self.process.peek()
+                if let &Some(v) = self.process.peek()
                     && Self::is_valid_escape(next, Some(v))
                 {
                     url_token_val.push(self.consume_escaped_code_point());
@@ -370,7 +370,7 @@ impl<'a> Tokenizer<'a> {
             }
 
             // the input stream starts with a valid escape
-            if let Some(&peek) = self.process.peek()
+            if let &Some(peek) = self.process.peek()
                 && Self::is_valid_escape(next, Some(peek))
             {
                 // Consume an escaped code point. This allows an escaped right parenthesis ("\)") to be encountered without ending the <bad-url-token>. This is otherwise identical to the "anything else" clause.
@@ -403,7 +403,7 @@ impl<'a> Tokenizer<'a> {
         }
 
         // Otherwise, if the next input code point is U+0025 PERCENTAGE SIGN (%), consume it.
-        if self.process.peek() == Some(&'\u{0025}') {
+        if self.process.peek() == &Some('\u{0025}') {
             self.process.next();
 
             // 	Create a <percentage-token> with the same value as number, and return it.
@@ -429,7 +429,7 @@ impl<'a> Tokenizer<'a> {
         let mut repr = String::new();
 
         // If the next input code point is U+002B PLUS SIGN (+) or U+002D HYPHEN-MINUS (-), consume it and append it to repr.
-        if let Some(&v) = self.process.peek()
+        if let &Some(v) = self.process.peek()
             && (v == '\u{002b}' || v == '\u{002d}')
         {
             self.process.next();
@@ -437,7 +437,7 @@ impl<'a> Tokenizer<'a> {
         }
 
         // While the next input code point is a digit, consume it and append it to repr.
-        while let Some(&v) = self.process.peek() {
+        while let &Some(v) = self.process.peek() {
             if !Self::is_digit(v) {
                 break;
             }
@@ -459,7 +459,7 @@ impl<'a> Tokenizer<'a> {
             r#type = NumberType::Number;
 
             // While the next input code point is a digit, consume it and append it to repr.
-            while let Some(&v) = self.process.peek() {
+            while let &Some(v) = self.process.peek() {
                 if !Self::is_digit(v) {
                     break;
                 }
@@ -469,7 +469,7 @@ impl<'a> Tokenizer<'a> {
         }
 
         // If the next 2 or 3 input code points are U+0045 LATIN CAPITAL LETTER E (E) or U+0065 LATIN SMALL LETTER E (e), optionally followed by U+002D HYPHEN-MINUS (-) or U+002B PLUS SIGN (+), followed by a digit, then:
-        if let &[Some(first), Some(second), Some(third)] = self.process.peek_amount(3).as_slice()
+        if let &[Some(first), Some(second), Some(third)] = self.process.peek_value(3)
             && ((Self::is_e(first) && Self::is_digit(second))
                 || (Self::is_e(first) && Self::is_plus_or_minus(second) && Self::is_digit(third)))
         {
@@ -488,7 +488,7 @@ impl<'a> Tokenizer<'a> {
             r#type = NumberType::Number;
 
             // While the next input code point is a digit, consume it and append it to repr.
-            while let Some(&v) = self.process.peek() {
+            while let &Some(v) = self.process.peek() {
                 if !Self::is_digit(v) {
                     break;
                 }
@@ -617,7 +617,7 @@ impl<'a> Tokenizer<'a> {
 
     pub fn would_start_number(&mut self) -> bool {
         // https://www.w3.org/TR/css-syntax-3/#starts-with-a-number
-        let peek = self.process.peek_amount(3);
+        let peek = self.process.peek_value(3);
 
         // Look at the first code point:
         let first = peek[0];
@@ -687,7 +687,7 @@ impl<'a> Tokenizer<'a> {
                 result.push(v);
             }
             // the stream starts with a valid escape
-            else if let Some(&v) = self.process.peek()
+            else if let &Some(v) = self.process.peek()
                 && Self::is_valid_escape(next, Some(v))
             {
                 // Consume an escaped code point. Append the returned code point to result.
@@ -696,7 +696,7 @@ impl<'a> Tokenizer<'a> {
             // anything else
             else {
                 // Reconsume the current input code point. Return result.
-                self.process.put_back_option(next);
+                self.process.put_back(next);
                 return result;
             }
         }
@@ -704,7 +704,7 @@ impl<'a> Tokenizer<'a> {
 
     pub fn would_start_ident_sequence(&mut self) -> bool {
         // https://www.w3.org/TR/css-syntax-3/#would-start-an-identifier
-        let peek = self.process.peek_amount(3);
+        let peek = self.process.peek_value(3);
         let first = peek[0];
         let second = peek[1];
         let third = peek[2];
@@ -812,7 +812,7 @@ impl<'a> Tokenizer<'a> {
             if next == Some('\u{000a}') {
                 // This is a parse error. Reconsume the current input code point, create a <bad-string-token>, and return it.
                 self.parse_error();
-                self.process.put_back('\u{000a}');
+                self.process.put_back(Some('\u{000a}'));
                 return CSSToken::BadStringToken;
             }
             // U+005C REVERSE SOLIDUS (\)
@@ -822,14 +822,14 @@ impl<'a> Tokenizer<'a> {
                     continue;
                 }
                 // Otherwise, if the next input code point is a newline, consume it.
-                else if let Some(&v) = self.process.peek()
+                else if let &Some(v) = self.process.peek()
                     && Self::is_newline(v)
                 {
                     self.process.next();
                     continue;
                 }
                 // Otherwise, (the stream starts with a valid escape) consume an escaped code point and append the returned code point to the <string-token>’s value.
-                else if let Some(&v) = self.process.peek()
+                else if let &Some(v) = self.process.peek()
                     && Self::is_valid_escape(Some('\u{005c}'), Some(v))
                 {
                     out.push(self.consume_escaped_code_point());
@@ -852,7 +852,7 @@ impl<'a> Tokenizer<'a> {
     }
 
     pub fn peek_twin(&mut self) -> (Option<char>, Option<char>) {
-        let peek = self.process.peek_amount(2);
+        let peek = self.process.peek_value(2);
         let first = peek[0];
         let second = peek[1];
         (first, second)
@@ -872,7 +872,7 @@ impl<'a> Tokenizer<'a> {
             let mut digits = String::new();
             digits.push(v);
 
-            while let Some(&peek) = self.process.peek()
+            while let &Some(peek) = self.process.peek()
                 && Self::is_hex_digit(peek)
                 && digits.len() <= 6
             {
@@ -881,7 +881,7 @@ impl<'a> Tokenizer<'a> {
             }
 
             // If the next input code point is whitespace, consume it as well.
-            if let Some(&peek) = self.process.peek()
+            if let &Some(peek) = self.process.peek()
                 && Self::is_whitespace(peek)
             {
                 self.process.next();
@@ -973,7 +973,7 @@ impl<'a> Tokenizer<'a> {
     }
 
     pub fn consume_whitespace(&mut self) {
-        while let Some(&v) = self.process.peek() {
+        while let &Some(v) = self.process.peek() {
             if !Self::is_whitespace(v) {
                 break;
             }
@@ -1110,61 +1110,4 @@ pub struct Number {
 pub enum NumberType {
     Integer,
     Number,
-}
-
-pub struct PutBackPeekMore<'a> {
-    pub peek_more: PeekMoreIterator<Chars<'a>>,
-    pub put_back: Option<char>,
-}
-
-impl<'a> Iterator for PutBackPeekMore<'a> {
-    type Item = char;
-    fn next(&mut self) -> Option<Self::Item> {
-        if let Some(v) = self.put_back {
-            let returned = v;
-            self.put_back = None;
-            return Some(v);
-        }
-        self.peek_more.next()
-    }
-}
-
-impl<'a> PutBackPeekMore<'a> {
-    pub fn new(input: &'a str) -> Self {
-        Self {
-            put_back: None,
-            peek_more: input.chars().peekmore(),
-        }
-    }
-
-    pub fn put_back(&mut self, input: char) {
-        self.put_back = Some(input);
-    }
-
-    pub fn put_back_option(&mut self, input: Option<char>) {
-        self.put_back = input;
-    }
-
-    pub fn peek(&mut self) -> Option<&char> {
-        if self.put_back.is_some() {
-            return self.put_back.as_ref();
-        }
-        self.peek_more.peek()
-    }
-
-    pub fn peek_amount(&mut self, amount: usize) -> Vec<Option<char>> {
-        if self.put_back.is_some() {
-            let mut out = vec![self.put_back];
-            out.extend_from_slice(self.peek_more.peek_amount(amount - 1));
-            return out;
-        }
-        self.peek_more.peek_amount(amount).to_vec()
-    }
-
-    pub fn peek_nth(&mut self, amount: usize) -> Option<&char> {
-        if self.put_back.is_some() {
-            return self.peek_more.peek_nth(amount - 1);
-        }
-        self.peek_more.peek_nth(amount)
-    }
 }
