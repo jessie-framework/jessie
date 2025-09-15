@@ -11,6 +11,6 @@ dependencies = [
 
 [[package]]
 name = "putbackpeekmore"
-version = "0.1.0"
+version = "0.1.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e0715134b7c4735d2c5586fee28e6b001eb0a6e805d0fc82b1fd01f965dcf999"
+checksum = "58b1150c376965506e92b8b011a2ea37820b929e6b2c9c61661412253d675b03"
