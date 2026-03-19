@@ -1,0 +1,9 @@
+[package]
+name = "jessie-shadercollect"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+gl = "0.14.0"
+jessie-shadercollect-macros = { version = "0.1.0", path = "../jessie-shadercollect-macros" }
+linkeasy = { version = "0.1.0", path = "../../linkeasy" }
