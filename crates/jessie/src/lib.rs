@@ -1,1 +1,1 @@
-pub use jessie_macros::object;
+pub use jessie_macros::init;

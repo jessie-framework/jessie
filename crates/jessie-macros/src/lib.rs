@@ -1,14 +1,14 @@
-use proc_macro::TokenStream as TS;
+use std::path::PathBuf;
 
-use crate::parser::Parser;
+use proc_macro::{TokenStream as TS};
 
-mod objects;
-mod parser;
-mod publicity;
-mod tree;
+#[proc_macro]
+pub fn init(stream: TS) -> TS {
+    let first = stream.into_iter().next().unwrap(); // We need to get the first token inside the init macro to get the file it is invoked in.
 
-#[proc_macro_attribute]
-pub fn object(obj_name: TS, item: TS) -> TS {
-    let tree = item.parse(obj_name);
-    tree.convert()
+    let file = first.span().file();
+
+    let path: PathBuf = file.into();
+
+    jessie_entry::entry(path).parse().expect("failed to parse compiler output")
 }

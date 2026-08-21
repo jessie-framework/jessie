@@ -1,0 +1,1 @@
+std::result::Result<&std::path::PathBuf, ConnectionError>: std::convert::AsRef<std::path::Path>
