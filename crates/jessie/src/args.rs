@@ -1,0 +1,33 @@
+use std::path::PathBuf;
+
+use colorful::Colorful;
+
+#[derive(clap::Parser)]
+pub struct Args {
+    #[arg(long)]
+    pub path: PathBuf,
+
+    pub flags: Vec<String>,
+}
+
+impl Args {
+    pub fn flags(&self) -> Vec<Flag> {
+        let mut out = vec![];
+        for v in &self.flags {
+            match v.as_str() {
+                #[cfg(feature = "testing")]
+                "--emit-tokens" => out.push(Flag::EmitTokens),
+                err => {
+                    println!("{}: unexpected flag {err}", "ERROR".red(),);
+                }
+            }
+        }
+        out
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum Flag {
+    #[cfg(feature = "testing")]
+    EmitTokens,
+}

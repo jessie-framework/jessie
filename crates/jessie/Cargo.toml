@@ -4,4 +4,11 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-jessie-macros = { version = "0.1.0", path = "../jessie-macros" }
+clap = { version = "4.6.6", features = ["derive"] }
+colorful = "0.3.2"
+jessie-rust-lex = { version = "0.1.0", path = "../jessie-rust-lex" }
+jessie-session = { version = "0.1.0", path = "../jessie-session" }
+jessie-span = { version = "0.1.0", path = "../jessie-span" }
+
+[features]
+testing = []
