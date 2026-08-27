@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, Hash)]
 pub struct Span(u32, u32);
 
 impl Span {
@@ -27,6 +27,16 @@ impl Span {
     #[inline]
     pub const fn hi(self) -> u32 {
         self.1
+    }
+
+    #[inline]
+    pub const fn shrink_to_lo(self) -> Self {
+        Self(self.0, self.0)
+    }
+
+    #[inline]
+    pub const fn shrink_to_hi(self) -> Self {
+        Self(self.1, self.1)
     }
 
     #[inline]
@@ -85,6 +95,54 @@ impl SourceMap {
             if src_sp.contains(sp) {
                 self.last = idx;
                 return path.to_owned();
+            }
+        }
+        unreachable!()
+    }
+
+    pub fn span_loc(&mut self, sp: Span) -> (u32, u32) {
+        if let Some((_, last_sp)) = self.paths.get(self.last)
+            && last_sp.contains(sp)
+        {
+            let str = self.span_str(*last_sp);
+            let mut line_count = 1;
+            let mut row_count = 1;
+            let mut idx = 0;
+            for ch in str.chars() {
+                if last_sp.lo() + idx == sp.lo() {
+                    return (line_count, row_count);
+                }
+
+                idx += ch.len_utf8() as u32;
+
+                if ch == '\n' {
+                    line_count += 1;
+                    row_count = 1;
+                } else {
+                    row_count += 1;
+                }
+            }
+        }
+        for (idx, (_path, src_sp)) in self.paths.iter().enumerate() {
+            if src_sp.contains(sp) {
+                self.last = idx;
+                let str = self.span_str(*src_sp);
+                let mut line_count = 1;
+                let mut row_count = 1;
+                let mut idx = 0;
+                for ch in str.chars() {
+                    if src_sp.lo() + idx == sp.lo() {
+                        return (line_count, row_count);
+                    }
+                    idx += ch.len_utf8() as u32;
+                    if ch == '\n' {
+                        line_count += 1;
+                        row_count = 1;
+                    } else {
+                        row_count += 1;
+                    }
+                }
+                return (line_count, row_count);
             }
         }
         unreachable!()
