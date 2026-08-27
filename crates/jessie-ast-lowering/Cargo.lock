@@ -6,6 +6,14 @@ version = 4
 name = "jessie-ast-lowering"
 version = "0.1.0"
 dependencies = [
+ "jessie-session",
+ "jessie-span",
+]
+
+[[package]]
+name = "jessie-session"
+version = "0.1.0"
+dependencies = [
  "jessie-span",
 ]
 
