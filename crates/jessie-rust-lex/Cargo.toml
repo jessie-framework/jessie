@@ -1,0 +1,9 @@
+[package]
+name = "jessie-rust-lex"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+jessie-session = { version = "0.1.0", path = "../jessie-session" }
+jessie-span = { version = "0.1.0", path = "../jessie-span" }
+unicode-xid = "0.2.6"
