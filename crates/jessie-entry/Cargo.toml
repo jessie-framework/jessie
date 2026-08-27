@@ -7,5 +7,6 @@ edition = "2024"
 jessie-ast = { version = "0.1.0", path = "../jessie-ast" }
 jessie-ast-lowering = { version = "0.1.0", path = "../jessie-ast-lowering" }
 jessie-cratesio = { version = "0.1.0", path = "../jessie-cratesio" }
+jessie-session = { version = "0.1.0", path = "../jessie-session" }
 jessie-span = { version = "0.1.0", path = "../jessie-span" }
 jessie-tokenizer = { version = "0.1.0", path = "../jessie-tokenizer" }
