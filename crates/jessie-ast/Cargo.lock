@@ -632,6 +632,7 @@ version = "0.1.0"
 dependencies = [
  "jessie-ast-lowering",
  "jessie-cratesio",
+ "jessie-session",
  "jessie-span",
  "jessie-tokenizer",
  "syn 3.0.3",
@@ -641,6 +642,7 @@ dependencies = [
 name = "jessie-ast-lowering"
 version = "0.1.0"
 dependencies = [
+ "jessie-session",
  "jessie-span",
 ]
 
@@ -659,6 +661,13 @@ dependencies = [
  "tar",
  "tokio",
  "toml",
+]
+
+[[package]]
+name = "jessie-session"
+version = "0.1.0"
+dependencies = [
+ "jessie-span",
 ]
 
 [[package]]
