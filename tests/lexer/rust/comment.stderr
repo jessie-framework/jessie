@@ -1,0 +1,52 @@
+[
+    Token {
+        span: Span(
+            81,
+            107,
+        ),
+        kind: DocComment(
+            Line,
+            Inner,
+        ),
+    },
+    Token {
+        span: Span(
+            109,
+            139,
+        ),
+        kind: DocComment(
+            Block,
+            Inner,
+        ),
+    },
+    Token {
+        span: Span(
+            141,
+            176,
+        ),
+        kind: DocComment(
+            Block,
+            Inner,
+        ),
+    },
+    Token {
+        span: Span(
+            178,
+            204,
+        ),
+        kind: DocComment(
+            Line,
+            Outer,
+        ),
+    },
+    Token {
+        span: Span(
+            206,
+            236,
+        ),
+        kind: DocComment(
+            Block,
+            Outer,
+        ),
+    },
+]

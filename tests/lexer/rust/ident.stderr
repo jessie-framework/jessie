@@ -1,0 +1,37 @@
+[
+    Token {
+        span: Span(
+            17,
+            20,
+        ),
+        kind: Ident,
+    },
+    Token {
+        span: Span(
+            21,
+            32,
+        ),
+        kind: Ident,
+    },
+    Token {
+        span: Span(
+            33,
+            39,
+        ),
+        kind: RawIdent,
+    },
+    Token {
+        span: Span(
+            40,
+            52,
+        ),
+        kind: Ident,
+    },
+    Token {
+        span: Span(
+            53,
+            59,
+        ),
+        kind: Ident,
+    },
+]

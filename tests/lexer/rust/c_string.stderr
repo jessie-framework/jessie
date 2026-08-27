@@ -1,0 +1,137 @@
+[
+    Token {
+        span: Span(
+            17,
+            28,
+        ),
+        kind: Literal(
+            CString,
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            30,
+            84,
+        ),
+        kind: Literal(
+            CString,
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            86,
+            148,
+        ),
+        kind: Literal(
+            CString,
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            150,
+            184,
+        ),
+        kind: Literal(
+            CString,
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            186,
+            226,
+        ),
+        kind: Literal(
+            CString,
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            232,
+            249,
+        ),
+        kind: Literal(
+            CString,
+            Some(
+                Suffix(
+                    Span(
+                        243,
+                        249,
+                    ),
+                ),
+            ),
+        ),
+    },
+    Token {
+        span: Span(
+            251,
+            312,
+        ),
+        kind: Literal(
+            CString,
+            Some(
+                Suffix(
+                    Span(
+                        306,
+                        312,
+                    ),
+                ),
+            ),
+        ),
+    },
+    Token {
+        span: Span(
+            314,
+            382,
+        ),
+        kind: Literal(
+            CString,
+            Some(
+                Suffix(
+                    Span(
+                        376,
+                        382,
+                    ),
+                ),
+            ),
+        ),
+    },
+    Token {
+        span: Span(
+            384,
+            430,
+        ),
+        kind: Literal(
+            CString,
+            Some(
+                Suffix(
+                    Span(
+                        424,
+                        430,
+                    ),
+                ),
+            ),
+        ),
+    },
+    Token {
+        span: Span(
+            432,
+            478,
+        ),
+        kind: Literal(
+            CString,
+            Some(
+                Suffix(
+                    Span(
+                        472,
+                        478,
+                    ),
+                ),
+            ),
+        ),
+    },
+]

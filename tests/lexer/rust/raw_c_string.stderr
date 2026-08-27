@@ -1,0 +1,122 @@
+[
+    Token {
+        span: Span(
+            17,
+            48,
+        ),
+        kind: Literal(
+            RawCString(
+                0,
+            ),
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            50,
+            89,
+        ),
+        kind: Literal(
+            RawCString(
+                1,
+            ),
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            91,
+            147,
+        ),
+        kind: Literal(
+            RawCString(
+                1,
+            ),
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            149,
+            187,
+        ),
+        kind: Literal(
+            RawCString(
+                2,
+            ),
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            189,
+            259,
+        ),
+        kind: Literal(
+            RawCString(
+                2,
+            ),
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            261,
+            374,
+        ),
+        kind: Literal(
+            RawCString(
+                3,
+            ),
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            376,
+            445,
+        ),
+        kind: Literal(
+            RawCString(
+                10,
+            ),
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            447,
+            544,
+        ),
+        kind: Literal(
+            RawCString(
+                10,
+            ),
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            546,
+            1343,
+        ),
+        kind: Literal(
+            RawCString(
+                255,
+            ),
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            1345,
+            2518,
+        ),
+        kind: Literal(
+            RawCString(
+                255,
+            ),
+            None,
+        ),
+    },
+]

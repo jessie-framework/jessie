@@ -1,0 +1,366 @@
+[
+    Token {
+        span: Span(
+            17,
+            20,
+        ),
+        kind: DotDotDot,
+    },
+    Token {
+        span: Span(
+            21,
+            23,
+        ),
+        kind: DotDotEq,
+    },
+    Token {
+        span: Span(
+            25,
+            27,
+        ),
+        kind: LtLtEq,
+    },
+    Token {
+        span: Span(
+            29,
+            31,
+        ),
+        kind: GtGtEq,
+    },
+    Token {
+        span: Span(
+            33,
+            35,
+        ),
+        kind: Ne,
+    },
+    Token {
+        span: Span(
+            36,
+            38,
+        ),
+        kind: ModEq,
+    },
+    Token {
+        span: Span(
+            39,
+            41,
+        ),
+        kind: AndAnd,
+    },
+    Token {
+        span: Span(
+            42,
+            44,
+        ),
+        kind: AndEq,
+    },
+    Token {
+        span: Span(
+            45,
+            47,
+        ),
+        kind: MulEq,
+    },
+    Token {
+        span: Span(
+            48,
+            50,
+        ),
+        kind: AddEq,
+    },
+    Token {
+        span: Span(
+            51,
+            53,
+        ),
+        kind: MinusEq,
+    },
+    Token {
+        span: Span(
+            54,
+            56,
+        ),
+        kind: Arr,
+    },
+    Token {
+        span: Span(
+            57,
+            59,
+        ),
+        kind: DotDot,
+    },
+    Token {
+        span: Span(
+            60,
+            62,
+        ),
+        kind: DivEq,
+    },
+    Token {
+        span: Span(
+            63,
+            65,
+        ),
+        kind: ColonColon,
+    },
+    Token {
+        span: Span(
+            66,
+            67,
+        ),
+        kind: Larr,
+    },
+    Token {
+        span: Span(
+            69,
+            71,
+        ),
+        kind: LtLt,
+    },
+    Token {
+        span: Span(
+            72,
+            73,
+        ),
+        kind: LtEq,
+    },
+    Token {
+        span: Span(
+            75,
+            77,
+        ),
+        kind: EqEq,
+    },
+    Token {
+        span: Span(
+            78,
+            80,
+        ),
+        kind: FatArrow,
+    },
+    Token {
+        span: Span(
+            81,
+            82,
+        ),
+        kind: GtEq,
+    },
+    Token {
+        span: Span(
+            84,
+            86,
+        ),
+        kind: GtGt,
+    },
+    Token {
+        span: Span(
+            87,
+            89,
+        ),
+        kind: CaretEq,
+    },
+    Token {
+        span: Span(
+            90,
+            92,
+        ),
+        kind: PipeEq,
+    },
+    Token {
+        span: Span(
+            93,
+            95,
+        ),
+        kind: PipePipe,
+    },
+    Token {
+        span: Span(
+            96,
+            97,
+        ),
+        kind: Bang,
+    },
+    Token {
+        span: Span(
+            98,
+            99,
+        ),
+        kind: Hash,
+    },
+    Token {
+        span: Span(
+            100,
+            101,
+        ),
+        kind: Dollar,
+    },
+    Token {
+        span: Span(
+            102,
+            103,
+        ),
+        kind: Mod,
+    },
+    Token {
+        span: Span(
+            104,
+            105,
+        ),
+        kind: And,
+    },
+    Token {
+        span: Span(
+            106,
+            107,
+        ),
+        kind: LParen,
+    },
+    Token {
+        span: Span(
+            108,
+            109,
+        ),
+        kind: RParen,
+    },
+    Token {
+        span: Span(
+            110,
+            111,
+        ),
+        kind: Star,
+    },
+    Token {
+        span: Span(
+            112,
+            113,
+        ),
+        kind: Plus,
+    },
+    Token {
+        span: Span(
+            114,
+            115,
+        ),
+        kind: Comma,
+    },
+    Token {
+        span: Span(
+            116,
+            117,
+        ),
+        kind: Minus,
+    },
+    Token {
+        span: Span(
+            118,
+            119,
+        ),
+        kind: Dot,
+    },
+    Token {
+        span: Span(
+            120,
+            121,
+        ),
+        kind: Slash,
+    },
+    Token {
+        span: Span(
+            122,
+            123,
+        ),
+        kind: Colon,
+    },
+    Token {
+        span: Span(
+            124,
+            125,
+        ),
+        kind: Semi,
+    },
+    Token {
+        span: Span(
+            126,
+            127,
+        ),
+        kind: Lt,
+    },
+    Token {
+        span: Span(
+            128,
+            129,
+        ),
+        kind: Eq,
+    },
+    Token {
+        span: Span(
+            130,
+            131,
+        ),
+        kind: Gt,
+    },
+    Token {
+        span: Span(
+            132,
+            133,
+        ),
+        kind: Mark,
+    },
+    Token {
+        span: Span(
+            134,
+            135,
+        ),
+        kind: At,
+    },
+    Token {
+        span: Span(
+            136,
+            137,
+        ),
+        kind: LSquare,
+    },
+    Token {
+        span: Span(
+            138,
+            139,
+        ),
+        kind: RSquare,
+    },
+    Token {
+        span: Span(
+            140,
+            141,
+        ),
+        kind: Caret,
+    },
+    Token {
+        span: Span(
+            142,
+            143,
+        ),
+        kind: LCurly,
+    },
+    Token {
+        span: Span(
+            144,
+            145,
+        ),
+        kind: Pipe,
+    },
+    Token {
+        span: Span(
+            146,
+            147,
+        ),
+        kind: RCurly,
+    },
+    Token {
+        span: Span(
+            148,
+            149,
+        ),
+        kind: Tilde,
+    },
+]

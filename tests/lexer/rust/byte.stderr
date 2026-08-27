@@ -1,0 +1,245 @@
+[
+    Token {
+        span: Span(
+            44,
+            48,
+        ),
+        kind: Literal(
+            Byte,
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            76,
+            81,
+        ),
+        kind: Literal(
+            Byte,
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            82,
+            87,
+        ),
+        kind: Literal(
+            Byte,
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            115,
+            121,
+        ),
+        kind: Literal(
+            Char,
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            122,
+            126,
+        ),
+        kind: Literal(
+            Char,
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            127,
+            131,
+        ),
+        kind: Literal(
+            Char,
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            132,
+            136,
+        ),
+        kind: Literal(
+            Char,
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            137,
+            141,
+        ),
+        kind: Literal(
+            Char,
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            142,
+            146,
+        ),
+        kind: Literal(
+            Char,
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            173,
+            179,
+        ),
+        kind: Literal(
+            Byte,
+            Some(
+                Suffix(
+                    Span(
+                        177,
+                        179,
+                    ),
+                ),
+            ),
+        ),
+    },
+    Token {
+        span: Span(
+            205,
+            212,
+        ),
+        kind: Literal(
+            Byte,
+            Some(
+                Suffix(
+                    Span(
+                        210,
+                        212,
+                    ),
+                ),
+            ),
+        ),
+    },
+    Token {
+        span: Span(
+            213,
+            220,
+        ),
+        kind: Literal(
+            Byte,
+            Some(
+                Suffix(
+                    Span(
+                        218,
+                        220,
+                    ),
+                ),
+            ),
+        ),
+    },
+    Token {
+        span: Span(
+            246,
+            254,
+        ),
+        kind: Literal(
+            Char,
+            Some(
+                Suffix(
+                    Span(
+                        252,
+                        254,
+                    ),
+                ),
+            ),
+        ),
+    },
+    Token {
+        span: Span(
+            255,
+            261,
+        ),
+        kind: Literal(
+            Char,
+            Some(
+                Suffix(
+                    Span(
+                        259,
+                        261,
+                    ),
+                ),
+            ),
+        ),
+    },
+    Token {
+        span: Span(
+            262,
+            268,
+        ),
+        kind: Literal(
+            Char,
+            Some(
+                Suffix(
+                    Span(
+                        266,
+                        268,
+                    ),
+                ),
+            ),
+        ),
+    },
+    Token {
+        span: Span(
+            269,
+            275,
+        ),
+        kind: Literal(
+            Char,
+            Some(
+                Suffix(
+                    Span(
+                        273,
+                        275,
+                    ),
+                ),
+            ),
+        ),
+    },
+    Token {
+        span: Span(
+            276,
+            282,
+        ),
+        kind: Literal(
+            Char,
+            Some(
+                Suffix(
+                    Span(
+                        280,
+                        282,
+                    ),
+                ),
+            ),
+        ),
+    },
+    Token {
+        span: Span(
+            283,
+            289,
+        ),
+        kind: Literal(
+            Char,
+            Some(
+                Suffix(
+                    Span(
+                        287,
+                        289,
+                    ),
+                ),
+            ),
+        ),
+    },
+]

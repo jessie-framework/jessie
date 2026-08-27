@@ -1,0 +1,122 @@
+[
+    Token {
+        span: Span(
+            17,
+            51,
+        ),
+        kind: Literal(
+            RawByteString(
+                0,
+            ),
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            53,
+            95,
+        ),
+        kind: Literal(
+            RawByteString(
+                1,
+            ),
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            97,
+            156,
+        ),
+        kind: Literal(
+            RawByteString(
+                1,
+            ),
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            158,
+            199,
+        ),
+        kind: Literal(
+            RawByteString(
+                2,
+            ),
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            201,
+            274,
+        ),
+        kind: Literal(
+            RawByteString(
+                2,
+            ),
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            276,
+            395,
+        ),
+        kind: Literal(
+            RawByteString(
+                3,
+            ),
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            397,
+            471,
+        ),
+        kind: Literal(
+            RawByteString(
+                10,
+            ),
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            473,
+            573,
+        ),
+        kind: Literal(
+            RawByteString(
+                10,
+            ),
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            575,
+            1375,
+        ),
+        kind: Literal(
+            RawByteString(
+                255,
+            ),
+            None,
+        ),
+    },
+    Token {
+        span: Span(
+            1377,
+            2553,
+        ),
+        kind: Literal(
+            RawByteString(
+                255,
+            ),
+            None,
+        ),
+    },
+]
