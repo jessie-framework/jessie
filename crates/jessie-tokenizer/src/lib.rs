@@ -143,7 +143,7 @@ impl<'a> Tokenizer<'a> {
     }
 }
 
-#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+#[derive(Debug, Clone, Copy, Hash)]
 pub struct Token {
     pub span: Span,
     pub kind: TokenKind,
@@ -187,6 +187,48 @@ pub enum TokenKind {
     Comma,
     Colon,
     Semicolon,
+}
+
+impl TokenKind {
+    pub fn as_str(self) -> &'static str {
+        match self {
+            Self::EOF => "end of file",
+            Self::Unknown => "unknown token",
+            Self::Whitespace => "whitespace",
+            Self::Lt => "<",
+            Self::Gt => ">",
+            Self::Hash => "#",
+            Self::Slash => "/",
+            Self::Backslash => "\\",
+            Self::Bang => "!",
+            Self::Tilde => "~",
+            Self::Plus => "+",
+            Self::Minus => "-",
+            Self::Star => "*",
+            Self::Percent => "%",
+            Self::Caret => "^",
+            Self::And => "&",
+            Self::Or => "|",
+            Self::At => "@",
+            Self::Dot => ".",
+            Self::Ident => "ident",
+            Self::LCurly => "{",
+            Self::RCurly => "}",
+            Self::LParen => "(",
+            Self::RParen => ")",
+            Self::LSquare => "[",
+            Self::RSquare => "]",
+            Self::Eq => "=",
+            Self::Digit => "digit",
+            Self::String => "string",
+            Self::MalformedString => "malformed string",
+            Self::Comment => "comment",
+            Self::MalformedComment => "malformed comment",
+            Self::Comma => ",",
+            Self::Colon => ":",
+            Self::Semicolon => ";",
+        }
+    }
 }
 
 /// Only implemented for values that take up a single Unicode code point and do not cause ambiguity
