@@ -1,6 +1,6 @@
 use std::path::PathBuf;
 
-use proc_macro::{TokenStream as TS};
+use proc_macro::TokenStream as TS;
 
 #[proc_macro]
 pub fn init(stream: TS) -> TS {
@@ -10,5 +10,13 @@ pub fn init(stream: TS) -> TS {
 
     let path: PathBuf = file.into();
 
-    jessie_entry::entry(path).parse().expect("failed to parse compiler output")
+    jessie_entry::entry()
+        .parse()
+        .expect("failed to parse compiler output")
+}
+
+/// Ideally, `init` should be an inner attribute (`#![jessie::init]`) rather than an item macro `jessie::init!(_)`, unfortunately as of now inner proc macros are unstable
+#[proc_macro_attribute]
+pub fn init2(attr: TS, item: TS) -> TS {
+    todo!()
 }
