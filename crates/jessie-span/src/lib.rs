@@ -3,6 +3,12 @@ use std::path::{Path, PathBuf};
 #[derive(Debug, Clone, Copy, Hash)]
 pub struct Span(u32, u32);
 
+impl std::fmt::Display for Span {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "<{};{}>", self.lo(), self.hi())
+    }
+}
+
 impl Span {
     #[inline]
     pub const fn new(lo: u32, hi: u32) -> Self {

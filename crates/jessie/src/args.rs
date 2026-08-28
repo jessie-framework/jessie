@@ -16,7 +16,9 @@ impl Args {
         for v in &self.flags {
             match v.as_str() {
                 #[cfg(feature = "testing")]
-                "--emit-tokens" => out.push(Flag::EmitTokens),
+                "--test=emit-tokens" => out.push(Flag::EmitTokens),
+                #[cfg(feature = "testing")]
+                "--test=recreate" => out.push(Flag::Recreate),
                 err => {
                     println!("{}: unexpected flag {err}", "ERROR".red(),);
                 }
@@ -30,4 +32,6 @@ impl Args {
 pub enum Flag {
     #[cfg(feature = "testing")]
     EmitTokens,
+    #[cfg(feature = "testing")]
+    Recreate,
 }

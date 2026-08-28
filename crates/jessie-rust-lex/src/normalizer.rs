@@ -26,17 +26,17 @@ impl<'a> Normalizer<'a> {
         let b = chars.next();
         let c = chars.next();
 
-        if let Some(a) = a {
-            idx += a.len_utf8() as u32;
-        }
+        // if let Some(a) = a {
+        //     idx += a.len_utf8() as u32;
+        // }
 
-        if let Some(b) = b {
-            idx += b.len_utf8() as u32;
-        }
+        // if let Some(b) = b {
+        //     idx += b.len_utf8() as u32;
+        // }
 
-        if let Some(c) = c {
-            idx += c.len_utf8() as u32;
-        }
+        // if let Some(c) = c {
+        //     idx += c.len_utf8() as u32;
+        // }
 
         // If a shebang is present, it is removed from the input sequence (and is therefore ignored).
         let skip_shebang = match (a, b, c) {

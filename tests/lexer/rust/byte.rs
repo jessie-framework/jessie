@@ -5,12 +5,12 @@ b'a'
 b'\''
 b'\"'
 // ascii escape unsuffixed
-'\x32'
-'\n'
-'\r'
-'\t'
-'\\'
-'\0'
+b'\x32'
+b'\n'
+b'\r'
+b'\t'
+b'\\'
+b'\0'
 
 // byte literal suffixed
 b'a'u8
@@ -18,10 +18,10 @@ b'a'u8
 b'\''u8
 b'\"'u8
 // ascii escape suffixed
-'\x32'u8
-'\n'u8
-'\r'u8
-'\t'u8
-'\\'u8
-'\0'u8
+b'\x32'u8
+b'\n'u8
+b'\r'u8
+b'\t'u8
+b'\\'u8
+b'\0'u8
 

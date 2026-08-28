@@ -1,137 +1,48 @@
-[
-    Token {
-        span: Span(
-            17,
-            25,
-        ),
-        kind: Literal(
-            String,
-            None,
-        ),
-    },
-    Token {
-        span: Span(
-            27,
-            80,
-        ),
-        kind: Literal(
-            String,
-            None,
-        ),
-    },
-    Token {
-        span: Span(
-            82,
-            143,
-        ),
-        kind: Literal(
-            String,
-            None,
-        ),
-    },
-    Token {
-        span: Span(
-            145,
-            178,
-        ),
-        kind: Literal(
-            String,
-            None,
-        ),
-    },
-    Token {
-        span: Span(
-            180,
-            216,
-        ),
-        kind: Literal(
-            String,
-            None,
-        ),
-    },
-    Token {
-        span: Span(
-            222,
-            236,
-        ),
-        kind: Literal(
-            String,
-            Some(
-                Suffix(
-                    Span(
-                        230,
-                        236,
-                    ),
-                ),
-            ),
-        ),
-    },
-    Token {
-        span: Span(
-            238,
-            298,
-        ),
-        kind: Literal(
-            String,
-            Some(
-                Suffix(
-                    Span(
-                        292,
-                        298,
-                    ),
-                ),
-            ),
-        ),
-    },
-    Token {
-        span: Span(
-            300,
-            367,
-        ),
-        kind: Literal(
-            String,
-            Some(
-                Suffix(
-                    Span(
-                        361,
-                        367,
-                    ),
-                ),
-            ),
-        ),
-    },
-    Token {
-        span: Span(
-            369,
-            408,
-        ),
-        kind: Literal(
-            String,
-            Some(
-                Suffix(
-                    Span(
-                        402,
-                        408,
-                    ),
-                ),
-            ),
-        ),
-    },
-    Token {
-        span: Span(
-            410,
-            452,
-        ),
-        kind: Literal(
-            String,
-            Some(
-                Suffix(
-                    Span(
-                        446,
-                        452,
-                    ),
-                ),
-            ),
-        ),
-    },
-]
+"string" [(string)@<14;22>]
+"all escapes in one line : \" \' \x32 \n \r \t \\ \0" [(string)@<24;77>]
+"
+all escapes in multiple lines :
+\"
+\'
+\x32
+\n
+\r
+\t
+\\
+\0
+" [(string)@<79;140>]
+"
+    multi
+    line
+    string
+" [(string)@<142;175>]
+"multi\
+line\
+string\
+with\
+these\
+" [(string)@<177;213>]
+"string"suffix [(suffixed string)@<219;233>]
+"all escapes in one line : \" \' \x32 \n \r \t \\ \0 "suffix [(suffixed string)@<235;295>]
+"
+all escapes in multiple lines :
+\"
+\'
+\x32
+\n
+\r
+\t
+\\
+\0
+"suffix [(suffixed string)@<297;364>]
+"
+    multi
+    line
+    string
+"suffix [(suffixed string)@<366;405>]
+"multi\
+line\
+string\
+with\
+these\
+"suffix [(suffixed string)@<407;449>]

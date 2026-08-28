@@ -1,137 +1,51 @@
-[
-    Token {
-        span: Span(
-            17,
-            28,
-        ),
-        kind: Literal(
-            CString,
-            None,
-        ),
-    },
-    Token {
-        span: Span(
-            30,
-            84,
-        ),
-        kind: Literal(
-            CString,
-            None,
-        ),
-    },
-    Token {
-        span: Span(
-            86,
-            148,
-        ),
-        kind: Literal(
-            CString,
-            None,
-        ),
-    },
-    Token {
-        span: Span(
-            150,
-            184,
-        ),
-        kind: Literal(
-            CString,
-            None,
-        ),
-    },
-    Token {
-        span: Span(
-            186,
-            226,
-        ),
-        kind: Literal(
-            CString,
-            None,
-        ),
-    },
-    Token {
-        span: Span(
-            232,
-            249,
-        ),
-        kind: Literal(
-            CString,
-            Some(
-                Suffix(
-                    Span(
-                        243,
-                        249,
-                    ),
-                ),
-            ),
-        ),
-    },
-    Token {
-        span: Span(
-            251,
-            312,
-        ),
-        kind: Literal(
-            CString,
-            Some(
-                Suffix(
-                    Span(
-                        306,
-                        312,
-                    ),
-                ),
-            ),
-        ),
-    },
-    Token {
-        span: Span(
-            314,
-            382,
-        ),
-        kind: Literal(
-            CString,
-            Some(
-                Suffix(
-                    Span(
-                        376,
-                        382,
-                    ),
-                ),
-            ),
-        ),
-    },
-    Token {
-        span: Span(
-            384,
-            430,
-        ),
-        kind: Literal(
-            CString,
-            Some(
-                Suffix(
-                    Span(
-                        424,
-                        430,
-                    ),
-                ),
-            ),
-        ),
-    },
-    Token {
-        span: Span(
-            432,
-            478,
-        ),
-        kind: Literal(
-            CString,
-            Some(
-                Suffix(
-                    Span(
-                        472,
-                        478,
-                    ),
-                ),
-            ),
-        ),
-    },
-]
+c"c string" [(c string)@<14;25>]
+c"all escapes in one line : \" \' \x32 \n \r \t \\ \0" [(c string)@<27;81>]
+c"
+all escapes in multiple lines :
+\"
+\'
+\x32
+\n
+\r
+\t
+\\
+\0
+" [(c string)@<83;145>]
+c"
+    multi
+    line
+    string
+" [(c string)@<147;181>]
+c"multi\
+line\
+c\
+string\
+with\
+these\
+" [(c string)@<183;223>]
+c"c string"suffix [(suffixed c string)@<229;246>]
+c"all escapes in one line : \" \' \x32 \n \r \t \\ \0 "suffix [(suffixed c string)@<248;309>]
+c"
+all escapes in multiple lines :
+\"
+\'
+\x32
+\n
+\r
+\t
+\\
+\0
+"suffix [(suffixed c string)@<311;379>]
+c"
+    multi
+    line
+    c
+    string
+"suffix [(suffixed c string)@<381;427>]
+c"multi\
+line\
+c\
+string\
+with\
+these\
+"suffix [(suffixed c string)@<429;475>]

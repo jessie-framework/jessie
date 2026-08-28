@@ -78,7 +78,24 @@ fn run_test_rs(path: &Path, bless: bool, cwd: &Path) {
                         .arg("--path")
                         .arg(path)
                         .arg("--")
-                        .arg("--emit-tokens")
+                        .arg("--test=emit-tokens")
+                        .current_dir(cwd),
+                    bless,
+                );
+            }
+            "recreate" => {
+                check_command(
+                    path,
+                    Command::new("cargo")
+                        .arg("-q")
+                        .arg("run")
+                        .arg("--features")
+                        .arg("testing")
+                        .arg("--")
+                        .arg("--path")
+                        .arg(path)
+                        .arg("--")
+                        .arg("--test=recreate")
                         .current_dir(cwd),
                     bless,
                 );

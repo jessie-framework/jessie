@@ -23,16 +23,52 @@ fn main() {
         });
         let src = &src.to_string();
         let mut lexer = jessie_rust_lex::Lexer::new(src, sp, &mut sess);
-        let mut out = vec![];
+        let mut toks = vec![];
         loop {
             let tok = lexer.lex_token();
             if tok.is_eof() {
                 break;
             }
-            out.push(tok);
+            toks.push(tok);
+        }
+
+        for tok in toks {
+            eprintln!(
+                "{} [({})@{}]",
+                sess.sm.span_str(tok.span),
+                tok.kind,
+                tok.span
+            );
         }
         sess.report_errs();
-        eprintln!("{out:#?}");
         std::process::exit(0);
     }
+
+    #[cfg(feature = "testing")]
+    if flags.contains(&args::Flag::Recreate) {
+        let (src, sp) = sess.sm.open(&args.path).unwrap_or_else(|_| {
+            use colorful::Colorful;
+            eprintln!("{}: failed to open path {:#?}", "ERROR".red(), args.path);
+            std::process::exit(1);
+        });
+        let src = &src.to_string();
+        let mut lexer = jessie_rust_lex::Lexer::new(src, sp, &mut sess);
+        let mut toks = vec![];
+        loop {
+            let tok = lexer.lex_token();
+            if tok.is_eof() || (tok.span.lo() == sp.lo() && tok.span.hi() == sp.hi()) {
+                break;
+            }
+            toks.push(tok);
+        }
+        let mut out = String::new();
+        for tok in toks {
+            out.push_str(sess.sm.span_str(tok.span));
+            out.push('\n');
+        }
+        sess.report_errs();
+        eprintln!("{out}");
+        std::process::exit(0);
+    }
+    // [1,2,3]4,5,6[7,8,9]
 }

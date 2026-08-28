@@ -1,137 +1,48 @@
-[
-    Token {
-        span: Span(
-            17,
-            31,
-        ),
-        kind: Literal(
-            ByteString,
-            None,
-        ),
-    },
-    Token {
-        span: Span(
-            33,
-            87,
-        ),
-        kind: Literal(
-            ByteString,
-            None,
-        ),
-    },
-    Token {
-        span: Span(
-            89,
-            151,
-        ),
-        kind: Literal(
-            ByteString,
-            None,
-        ),
-    },
-    Token {
-        span: Span(
-            153,
-            187,
-        ),
-        kind: Literal(
-            ByteString,
-            None,
-        ),
-    },
-    Token {
-        span: Span(
-            189,
-            226,
-        ),
-        kind: Literal(
-            ByteString,
-            None,
-        ),
-    },
-    Token {
-        span: Span(
-            232,
-            252,
-        ),
-        kind: Literal(
-            ByteString,
-            Some(
-                Suffix(
-                    Span(
-                        246,
-                        252,
-                    ),
-                ),
-            ),
-        ),
-    },
-    Token {
-        span: Span(
-            254,
-            315,
-        ),
-        kind: Literal(
-            ByteString,
-            Some(
-                Suffix(
-                    Span(
-                        309,
-                        315,
-                    ),
-                ),
-            ),
-        ),
-    },
-    Token {
-        span: Span(
-            317,
-            385,
-        ),
-        kind: Literal(
-            ByteString,
-            Some(
-                Suffix(
-                    Span(
-                        379,
-                        385,
-                    ),
-                ),
-            ),
-        ),
-    },
-    Token {
-        span: Span(
-            387,
-            427,
-        ),
-        kind: Literal(
-            ByteString,
-            Some(
-                Suffix(
-                    Span(
-                        421,
-                        427,
-                    ),
-                ),
-            ),
-        ),
-    },
-    Token {
-        span: Span(
-            429,
-            472,
-        ),
-        kind: Literal(
-            ByteString,
-            Some(
-                Suffix(
-                    Span(
-                        466,
-                        472,
-                    ),
-                ),
-            ),
-        ),
-    },
-]
+b"byte string" [(byte string)@<14;28>]
+b"all escapes in one line : \" \' \x32 \n \r \t \\ \0" [(byte string)@<30;84>]
+b"
+all escapes in multiple lines :
+\"
+\'
+\x32
+\n
+\r
+\t
+\\
+\0
+" [(byte string)@<86;148>]
+b"
+    multi
+    line
+    string
+" [(byte string)@<150;184>]
+b"multi\
+line\
+string\
+with\
+these\
+" [(byte string)@<186;223>]
+b"byte string"suffix [(suffixed byte string)@<229;249>]
+b"all escapes in one line : \" \' \x32 \n \r \t \\ \0 "suffix [(suffixed byte string)@<251;312>]
+b"
+all escapes in multiple lines :
+\"
+\'
+\x32
+\n
+\r
+\t
+\\
+\0
+"suffix [(suffixed byte string)@<314;382>]
+b"
+    multi
+    line
+    string
+"suffix [(suffixed byte string)@<384;424>]
+b"multi\
+line\
+string\
+with\
+these\
+"suffix [(suffixed byte string)@<426;469>]

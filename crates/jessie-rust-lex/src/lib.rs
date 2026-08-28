@@ -81,6 +81,7 @@ impl<'a> Lexer<'a> {
             },
         }
     }
+
     fn lex_tilde(&mut self, lo: u32) -> Token {
         self.iter.next();
         let span = Span::new(lo, self.iter.idx());
@@ -375,6 +376,7 @@ impl<'a> Lexer<'a> {
         match (gt_count, self.iter.peek()) {
             (2, Some('=')) => {
                 self.iter.next();
+                let span = Span::new(lo, self.iter.idx());
                 Token {
                     span,
                     kind: TokenKind::GtGtEq,
@@ -386,6 +388,7 @@ impl<'a> Lexer<'a> {
             },
             (1, Some('=')) => {
                 self.iter.next();
+                let span = Span::new(lo, self.iter.idx());
                 Token {
                     span,
                     kind: TokenKind::GtEq,
@@ -405,6 +408,7 @@ impl<'a> Lexer<'a> {
         match (lt_count, self.iter.peek()) {
             (2, Some('=')) => {
                 self.iter.next();
+                let span = Span::new(lo, self.iter.idx());
                 Token {
                     span,
                     kind: TokenKind::LtLtEq,
@@ -416,6 +420,7 @@ impl<'a> Lexer<'a> {
             },
             (1, Some('-')) => {
                 self.iter.next();
+                let span = Span::new(lo, self.iter.idx());
                 Token {
                     span,
                     kind: TokenKind::Larr,
@@ -423,6 +428,7 @@ impl<'a> Lexer<'a> {
             }
             (1, Some('=')) => {
                 self.iter.next();
+                let span = Span::new(lo, self.iter.idx());
                 Token {
                     span,
                     kind: TokenKind::LtEq,
@@ -446,6 +452,7 @@ impl<'a> Lexer<'a> {
             },
             (2, Some('=')) => {
                 self.iter.next();
+                let span = Span::new(lo, self.iter.idx());
                 Token {
                     span,
                     kind: TokenKind::DotDotEq,
@@ -463,47 +470,86 @@ impl<'a> Lexer<'a> {
         }
     }
 
-    fn lex_generic_number_token(&mut self, lo: u32) -> Token {
-        let kind = self.lex_generic_digit_token();
-        if let TokenKind::Literal(LitKind::Integer(IntegerKind::Dec(has_underscore)), _) = kind
-            && let Some('.') = self.iter.peek()
+    fn lex_exponent(&mut self) -> Exponent {
+        let lo = self.iter.idx() - 1;
+        match self.iter.peek() {
+            Some('+') | Some('-') => {
+                self.iter.next();
+            }
+            _ => {}
+        }
+        while let Some(peek) = self.iter.peek()
+            && peek == '_'
         {
             self.iter.next();
-            match self.iter.peek() {
-                Some(v) if v == '.' || v == '_' || v.is_xid_start() => {
-                    let hi = self.iter.idx();
-                    let float_kind = match has_underscore {
-                        HasUnderscore::Yes => FloatKind::NotReserved,
-                        HasUnderscore::No => FloatKind::Reserved,
-                    };
-                    return Token {
-                        span: Span::new(lo, hi),
-                        kind: TokenKind::Literal(LitKind::Float(float_kind), self.skip_suffix()),
-                    };
-                }
-                Some(v) if v.is_ascii_digit() => {
-                    let has_underscore_rhs = self.skip_dec_digit();
-                    let suffix = self.skip_suffix();
-                    let float_kind = match (suffix.is_some(), has_underscore, has_underscore_rhs) {
-                        (false, HasUnderscore::No, HasUnderscore::No) => FloatKind::Reserved,
-                        _ => FloatKind::NotReserved,
-                    };
-                    let hi = self.iter.idx();
-                    return Token {
-                        span: Span::new(lo, hi),
-                        kind: TokenKind::Literal(LitKind::Float(float_kind), self.skip_suffix()),
-                    };
-                }
-                _ => {
-                    let float_kind = match kind.has_suffix() {
-                        true => FloatKind::NotReserved,
-                        false => FloatKind::Reserved,
-                    };
-                    let hi = self.iter.idx();
-                    return Token {
-                        span: Span::new(lo, hi),
-                        kind: TokenKind::Literal(LitKind::Float(float_kind), None),
-                    };
+        }
+        self.skip_dec_digit();
+        let hi = self.iter.idx();
+        let span = Span::new(lo, hi);
+        Exponent(span)
+    }
+
+    fn lex_generic_number_token(&mut self, lo: u32) -> Token {
+        let kind = self.lex_generic_digit_token();
+        if let TokenKind::Literal(LitKind::Integer(IntegerKind::Dec(has_underscore)), _) = kind {
+            if let Some(suffix) = kind.get_suffix()
+                && (self.sess.sm.span_str(suffix.span()) == "e"
+                    || self.sess.sm.span_str(suffix.span()) == "E")
+            {
+                let exponent = self.lex_exponent();
+                let suffix = self.skip_suffix();
+                let hi = self.iter.idx();
+                let span = Span::new(lo, hi);
+                return Token {
+                    span,
+                    kind: TokenKind::Literal(
+                        LitKind::Float(FloatKind::NotReserved, Some(exponent)),
+                        suffix,
+                    ),
+                };
+            }
+            if let Some('.') = self.iter.peek() {
+                self.iter.next();
+                match self.iter.peek() {
+                    Some(v) if v == '.' || v == '_' || v.is_xid_start() => {
+                        let suffix = self.skip_suffix();
+                        let hi = self.iter.idx();
+                        let float_kind = match has_underscore {
+                            HasUnderscore::Yes => FloatKind::NotReserved,
+                            HasUnderscore::No => FloatKind::Reserved,
+                        };
+                        return Token {
+                            span: Span::new(lo, hi),
+                            kind: TokenKind::Literal(LitKind::Float(float_kind, None), suffix),
+                        };
+                    }
+                    Some(v) if v.is_ascii_digit() => {
+                        let has_underscore_rhs = self.skip_dec_digit();
+                        let suffix = self.skip_suffix();
+                        let float_kind =
+                            match (suffix.is_some(), has_underscore, has_underscore_rhs) {
+                                (false, HasUnderscore::No, HasUnderscore::No) => {
+                                    FloatKind::Reserved
+                                }
+                                _ => FloatKind::NotReserved,
+                            };
+                        let hi = self.iter.idx();
+                        return Token {
+                            span: Span::new(lo, hi),
+                            kind: TokenKind::Literal(LitKind::Float(float_kind, None), suffix),
+                        };
+                    }
+                    _ => {
+                        let float_kind = match kind.has_suffix() {
+                            true => FloatKind::NotReserved,
+                            false => FloatKind::Reserved,
+                        };
+                        let hi = self.iter.idx();
+                        return Token {
+                            span: Span::new(lo, hi),
+                            kind: TokenKind::Literal(LitKind::Float(float_kind, None), None),
+                        };
+                    }
                 }
             }
         }
@@ -525,7 +571,7 @@ impl<'a> Lexer<'a> {
                         self.iter.next();
                         self.skip_bin_digit();
                         return TokenKind::Literal(
-                            LitKind::Integer(IntegerKind::Oct),
+                            LitKind::Integer(IntegerKind::Bin),
                             self.skip_suffix(),
                         );
                     }
@@ -533,7 +579,7 @@ impl<'a> Lexer<'a> {
                         self.iter.next();
                         self.skip_oct_digit();
                         return TokenKind::Literal(
-                            LitKind::Integer(IntegerKind::Bin),
+                            LitKind::Integer(IntegerKind::Oct),
                             self.skip_suffix(),
                         );
                     }
@@ -557,6 +603,11 @@ impl<'a> Lexer<'a> {
     }
 
     fn skip_dec_digit(&mut self) -> HasUnderscore {
+        match self.iter.peek() {
+            Some(v) if !v.is_ascii_digit() => return HasUnderscore::No,
+            None => return HasUnderscore::No,
+            _ => {}
+        }
         let lo = self.iter.idx();
         let next = self.iter.next();
         let hi = self.iter.idx();
@@ -587,8 +638,11 @@ impl<'a> Lexer<'a> {
         has_underscore
     }
 
-    fn skip_bin_digit(&mut self) -> HasUnderscore {
+    fn skip_bin_digit(&mut self) {
         let lo = self.iter.idx();
+        while self.iter.peek() == Some('_') {
+            self.iter.next();
+        }
         let next = self.iter.next();
         let hi = self.iter.idx();
         match next {
@@ -606,20 +660,18 @@ impl<'a> Lexer<'a> {
             }
             _ => {}
         }
-        let mut has_underscore = HasUnderscore::No;
         while let Some(peek) = self.iter.peek()
             && (('0'..='1').contains(&peek) || peek == '_')
         {
-            if peek == '_' {
-                has_underscore = HasUnderscore::Yes;
-            }
             self.iter.next();
         }
-        has_underscore
     }
 
-    fn skip_oct_digit(&mut self) -> HasUnderscore {
+    fn skip_oct_digit(&mut self) {
         let lo = self.iter.idx();
+        while self.iter.peek() == Some('_') {
+            self.iter.next();
+        }
         let next = self.iter.next();
         let hi = self.iter.idx();
         match next {
@@ -637,20 +689,18 @@ impl<'a> Lexer<'a> {
             }
             _ => {}
         }
-        let mut has_underscore = HasUnderscore::No;
         while let Some(peek) = self.iter.peek()
             && (('0'..='7').contains(&peek) || peek == '_')
         {
-            if peek == '_' {
-                has_underscore = HasUnderscore::Yes;
-            }
             self.iter.next();
         }
-        has_underscore
     }
 
-    fn skip_hex_digit(&mut self) -> HasUnderscore {
+    fn skip_hex_digit(&mut self) {
         let lo = self.iter.idx();
+        while self.iter.peek() == Some('_') {
+            self.iter.next();
+        }
         let next = self.iter.next();
         let hi = self.iter.idx();
         match next {
@@ -668,16 +718,11 @@ impl<'a> Lexer<'a> {
             }
             _ => {}
         }
-        let mut has_underscore = HasUnderscore::No;
         while let Some(peek) = self.iter.peek()
             && (peek.is_ascii_hexdigit() || peek == '_')
         {
-            if peek == '_' {
-                has_underscore = HasUnderscore::Yes;
-            }
             self.iter.next();
         }
-        has_underscore
     }
 
     fn lex_generic_tick_token(&mut self, lo: u32) -> Token {
@@ -859,13 +904,16 @@ impl<'a> Lexer<'a> {
             && (peek.is_whitespace() || peek == '/')
         {
             let lo = self.iter.idx();
-            if peek == '/'
-                && let Some(kind) = self.lex_comments()
-            {
-                return Some(Token {
-                    span: Span::new(lo, self.iter.idx()),
-                    kind,
-                });
+            if peek == '/' {
+                match self.lex_comments() {
+                    Some(kind) => {
+                        return Some(Token {
+                            span: Span::new(lo, self.iter.idx()),
+                            kind,
+                        });
+                    }
+                    _ => continue,
+                }
             }
             self.iter.next();
         }
@@ -904,12 +952,12 @@ impl<'a> Lexer<'a> {
         } else {
             false
         };
+        if !has_suffix {
+            return None;
+        }
         self.lex_ident_or_keyword();
         let hi = self.iter.idx();
-        match has_suffix {
-            true => Some(Suffix::new(Span::new(lo, hi))),
-            false => None,
-        }
+        Some(Suffix::new(Span::new(lo, hi)))
     }
 
     fn skip_until_newline(&mut self) {
@@ -959,6 +1007,7 @@ impl<'a> Lexer<'a> {
         allow_unicode_escaping: bool,
         allow_byte_escaping: bool,
     ) -> TokenKind {
+        let lo = self.iter.idx();
         self.iter.next();
         match self.iter.peek() {
             Some('\\') => {
@@ -1035,20 +1084,73 @@ impl<'a> Lexer<'a> {
                 self.skip_ch('\'');
                 TokenKind::Literal(LitKind::Char, self.skip_suffix())
             }
-            Some(v) if v.is_xid_start() => {
+            Some('r') => {
                 self.iter.next();
-                match (v, self.iter.peek()) {
-                    ('r', Some('#')) => {
-                        self.iter.next();
-                        self.skip_suffix();
-                        TokenKind::RawLifetime
+                if self.iter.peek() == Some('#') {
+                    self.iter.next();
+                    match self.iter.peek() {
+                        Some(v) if !(v.is_xid_start() || v == '_') => {
+                            let hi = self.iter.idx();
+                            self.sess.new_err_sp(
+                                Span::new(lo, hi),
+                                &format!("unexpected value for raw lifetime {v}"),
+                            );
+                        }
+                        None => {
+                            let hi = self.iter.idx();
+                            self.sess.new_err_sp(
+                                Span::new(lo, hi),
+                                "expected start for lifetime sequence, found end of file",
+                            );
+                        }
+                        _ => {}
                     }
-                    (_, Some('\'')) => {
-                        self.iter.next();
-                        TokenKind::Literal(LitKind::Char, self.skip_suffix())
-                    }
-                    _ => TokenKind::Lifetime,
+                    self.lex_ident_or_keyword();
+                    return TokenKind::RawLifetime;
                 }
+                if let Some(peek) = self.iter.peek()
+                    && peek.is_xid_continue()
+                {
+                    self.lex_ident_or_keyword();
+                    if self.iter.peek() == Some('\'') {
+                        let lo = self.iter.idx();
+                        self.iter.next();
+                        let sp = Span::new(lo, self.iter.idx());
+                        self.sess
+                            .new_err_sp(sp, "character can't have multiple unicode code points");
+                        return TokenKind::Literal(LitKind::Char, self.skip_suffix());
+                    }
+                }
+                if self.iter.peek() == Some('\'') {
+                    self.iter.next();
+                    return TokenKind::Literal(LitKind::Char, self.skip_suffix());
+                }
+                TokenKind::Lifetime
+            }
+            Some(v) if v.is_xid_start() || v == '_' => {
+                self.iter.next();
+                if let Some(peek) = self.iter.peek()
+                    && peek.is_xid_continue()
+                {
+                    self.lex_ident_or_keyword();
+                    if self.iter.peek() == Some('\'') {
+                        self.iter.next();
+                        let hi = self.iter.idx();
+                        self.sess.new_err_sp(
+                            Span::new(lo, hi),
+                            "character can't have multiple unicode code points",
+                        );
+                        return TokenKind::Err;
+                    }
+                    return TokenKind::Lifetime;
+                }
+                if let Some(peek) = self.iter.peek()
+                    && peek == '\''
+                {
+                    self.iter.next();
+                    return TokenKind::Literal(LitKind::Char, self.skip_suffix());
+                }
+                TokenKind::Lifetime
             }
             None => {
                 let idx = self.iter.idx();
@@ -1264,30 +1366,24 @@ impl<'a> Lexer<'a> {
             if self.iter.peek() == Some('/') {
                 self.iter.next();
                 let peek = self.iter.peek();
+                let out = match peek {
+                    Some('/') => Some(DocComment(CommentKind::Line, AttrStyle::Outer)),
+                    Some('!') => Some(DocComment(CommentKind::Line, AttrStyle::Inner)),
+                    _ => None,
+                };
                 self.skip_until_newline();
-                match peek {
-                    Some('/') => {
-                        return Some(DocComment(CommentKind::Line, AttrStyle::Outer));
-                    }
-                    Some('!') => {
-                        return Some(DocComment(CommentKind::Line, AttrStyle::Inner));
-                    }
-                    _ => return None,
-                }
+                return out;
             }
             if self.iter.peek() == Some('*') {
                 self.iter.next();
                 let peek = self.iter.peek();
+                let out = match peek {
+                    Some('*') => Some(DocComment(CommentKind::Block, AttrStyle::Outer)),
+                    Some('!') => Some(DocComment(CommentKind::Block, AttrStyle::Inner)),
+                    _ => None,
+                };
                 self.skip_until_block_comment_end();
-                match peek {
-                    Some('*') => {
-                        return Some(DocComment(CommentKind::Block, AttrStyle::Outer));
-                    }
-                    Some('!') => {
-                        return Some(DocComment(CommentKind::Block, AttrStyle::Inner));
-                    }
-                    _ => return None,
-                }
+                return out;
             }
             if self.iter.peek() == Some('=') {
                 self.iter.next();
@@ -1552,7 +1648,7 @@ impl TokenKind {
     }
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, Hash)]
 pub enum LitKind {
     /// 'a'
     Char,
@@ -1571,12 +1667,38 @@ pub enum LitKind {
     /// cr#"abc"#
     RawCString(u8),
     /// 1.0f32
-    Float(FloatKind),
+    Float(FloatKind, Option<Exponent>),
     /// 0u8
     Integer(IntegerKind),
     /// "malformed string
     MalformedString,
 }
+
+impl std::fmt::Display for LitKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Char => write!(f, "character"),
+            Self::String => write!(f, "string"),
+            Self::RawString(hash_count) => write!(f, "raw string({} hashes)", hash_count),
+            Self::Byte => write!(f, "byte"),
+            Self::ByteString => write!(f, "byte string"),
+            Self::RawByteString(hash_count) => write!(f, "raw byte string({} hashes)", hash_count),
+            Self::CString => write!(f, "c string"),
+            Self::RawCString(hash_count) => write!(f, "raw c string({} hashes)", hash_count),
+            Self::Float(_, _) => write!(f, "float"),
+            Self::Integer(integer_kind) => match integer_kind {
+                IntegerKind::Dec(_) => write!(f, "decimal integer"),
+                IntegerKind::Oct => write!(f, "octal integer"),
+                IntegerKind::Hex => write!(f, "hexadecimal integer"),
+                IntegerKind::Bin => write!(f, "binary integer"),
+            },
+            Self::MalformedString => write!(f, "malformed string"),
+        }
+    }
+}
+
+#[derive(Debug, Clone, Copy, Hash)]
+pub struct Exponent(Span);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub enum FloatKind {
@@ -1620,4 +1742,82 @@ pub enum CommentKind {
 pub enum AttrStyle {
     Inner,
     Outer,
+}
+
+impl std::fmt::Display for TokenKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::DotDotDot => write!(f, "dot dot dot"),
+            Self::DotDotEq => write!(f, "dot dot equal sign"),
+            Self::DotDot => write!(f, "dot dot"),
+            Self::Dot => write!(f, "dot"),
+            Self::LtLtEq => write!(f, "less than sign less than sign equal sign"),
+            Self::LtEq => write!(f, "less than sign equal sign"),
+            Self::Larr => write!(f, "left arrow"),
+            Self::Lt => write!(f, "less than sign"),
+            Self::LtLt => write!(f, "less than sign less than sign"),
+            Self::GtGtEq => write!(f, "greater than sign greater than sign equal sign"),
+            Self::GtGt => write!(f, "greater than sign greater than sign"),
+            Self::GtEq => write!(f, "greater than sign equal sign"),
+            Self::Gt => write!(f, "greater than sign"),
+            Self::Ne => write!(f, "not equal sign"),
+            Self::Bang => write!(f, "exclamation mark"),
+            Self::Ident => write!(f, "ident"),
+            Self::ModEq => write!(f, "modulo sign equal sign"),
+            Self::Mod => write!(f, "modulo sign"),
+            Self::AndAnd => write!(f, "ampersand ampersand"),
+            Self::AndEq => write!(f, "ampersand equal sign"),
+            Self::And => write!(f, "ampersand"),
+            Self::Star => write!(f, "asterisk"),
+            Self::MulEq => write!(f, "asterisk equal sign"),
+            Self::Plus => write!(f, "plus sign"),
+            Self::AddEq => write!(f, "plus sign equal sign"),
+            Self::Minus => write!(f, "minus sign"),
+            Self::MinusEq => write!(f, "minus sign equal sign"),
+            Self::Arr => write!(f, "arrow"),
+            Self::RawIdent => write!(f, "raw ident"),
+            Self::RawLifetime => write!(f, "raw lifetime"),
+            Self::Lifetime => write!(f, "lifetime"),
+            Self::Slash => write!(f, "slash"),
+            Self::DivEq => write!(f, "slash equal sign"),
+            Self::Colon => write!(f, "colon sign"),
+            Self::ColonColon => write!(f, "colon sign colon sign"),
+            Self::EqEq => write!(f, "equal sign equal sign"),
+            Self::FatArrow => write!(f, "fat arrow"),
+            Self::Eq => write!(f, "equal sign"),
+            Self::Caret => write!(f, "caret sign"),
+            Self::CaretEq => write!(f, "caret sign equal sign"),
+            Self::Pipe => write!(f, "pipe"),
+            Self::PipePipe => write!(f, "pipe pipe"),
+            Self::PipeEq => write!(f, "pipe equal sign"),
+            Self::Hash => write!(f, "hash sign"),
+            Self::Dollar => write!(f, "dollar sign"),
+            Self::LParen => write!(f, "left paranthesis"),
+            Self::RParen => write!(f, "right paranthesis"),
+            Self::Comma => write!(f, "comma"),
+            Self::Semi => write!(f, "semicolon"),
+            Self::Mark => write!(f, "question mark"),
+            Self::At => write!(f, "at sign"),
+            Self::LSquare => write!(f, "left square bracket"),
+            Self::RSquare => write!(f, "right square bracket"),
+            Self::LCurly => write!(f, "left curly bracket"),
+            Self::RCurly => write!(f, "right curly bracket"),
+            Self::Tilde => write!(f, "tilde"),
+            Self::DocComment(comment_kind, attr_style) => match (comment_kind, attr_style) {
+                (CommentKind::Line, AttrStyle::Inner) => write!(f, "inner line doc comment"),
+                (CommentKind::Block, AttrStyle::Inner) => write!(f, "inner block doc comment"),
+                (CommentKind::Line, AttrStyle::Outer) => write!(f, "outer line doc comment"),
+                (CommentKind::Block, AttrStyle::Outer) => write!(f, "outer block doc comment"),
+            },
+            Self::MalformedComment => write!(f, "malformed comment"),
+            Self::Literal(lit_kind, suffix) => write!(
+                f,
+                "{}{}",
+                if suffix.is_some() { "suffixed " } else { "" },
+                lit_kind
+            ),
+            Self::Err => write!(f, "unknown token"),
+            Self::EOF => write!(f, "end of file"),
+        }
+    }
 }

@@ -1,52 +1,16 @@
-[
-    Token {
-        span: Span(
-            81,
-            107,
-        ),
-        kind: DocComment(
-            Line,
-            Inner,
-        ),
-    },
-    Token {
-        span: Span(
-            109,
-            139,
-        ),
-        kind: DocComment(
-            Block,
-            Inner,
-        ),
-    },
-    Token {
-        span: Span(
-            141,
-            176,
-        ),
-        kind: DocComment(
-            Block,
-            Inner,
-        ),
-    },
-    Token {
-        span: Span(
-            178,
-            204,
-        ),
-        kind: DocComment(
-            Line,
-            Outer,
-        ),
-    },
-    Token {
-        span: Span(
-            206,
-            236,
-        ),
-        kind: DocComment(
-            Block,
-            Outer,
-        ),
-    },
-]
+//! inner line doc comment [(inner line doc comment)@<78;104>]
+/*! inner block doc comment */ [(inner block doc comment)@<106;136>]
+/*!
+also
+inner
+block
+doc
+comment
+*/ [(inner block doc comment)@<138;173>]
+/// outer line doc comment [(outer line doc comment)@<175;201>]
+/**
+outer
+block
+doc
+comment
+*/ [(outer block doc comment)@<203;233>]

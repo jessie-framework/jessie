@@ -1,37 +1,5 @@
-[
-    Token {
-        span: Span(
-            17,
-            20,
-        ),
-        kind: Ident,
-    },
-    Token {
-        span: Span(
-            21,
-            32,
-        ),
-        kind: Ident,
-    },
-    Token {
-        span: Span(
-            33,
-            39,
-        ),
-        kind: RawIdent,
-    },
-    Token {
-        span: Span(
-            40,
-            52,
-        ),
-        kind: Ident,
-    },
-    Token {
-        span: Span(
-            53,
-            59,
-        ),
-        kind: Ident,
-    },
-]
+foo [(ident)@<14;17>]
+_identifier [(ident)@<18;29>]
+r#true [(raw ident)@<30;36>]
+Москва [(ident)@<37;49>]
+東京 [(ident)@<50;56>]

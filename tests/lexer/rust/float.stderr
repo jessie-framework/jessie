@@ -1,0 +1,6 @@
+123.0 [(float)@<28;33>]
+0.1 [(float)@<34;37>]
+12E+99_ [(float)@<38;45>]
+123.0f64 [(suffixed float)@<58;66>]
+0.1f64 [(suffixed float)@<67;73>]
+12E+99_f64 [(suffixed float)@<74;84>]
