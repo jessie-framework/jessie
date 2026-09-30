@@ -1,0 +1,9 @@
+#!--test=emit-ast
+uniform never : !;
+uniform ref : &!;
+uniform ref_with_lt: &'a !;
+uniform ref_mut : &mut !;
+uniform ref_mut_with_lt : &'a mut !;
+uniform path : path;
+uniform tup : (u32,u32);
+uniform path_with_generics : path<generic>;
