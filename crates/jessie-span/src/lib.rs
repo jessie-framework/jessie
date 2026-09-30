@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-#[derive(Debug, Clone, Copy, Hash)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub struct Span(u32, u32);
 
 impl std::fmt::Display for Span {
@@ -33,6 +33,16 @@ impl Span {
     #[inline]
     pub const fn hi(self) -> u32 {
         self.1
+    }
+
+    #[inline]
+    pub const fn len(self) -> u32 {
+        self.1 - self.0
+    }
+
+    #[inline]
+    pub const fn is_empty(self) -> bool {
+        self.len() == 0
     }
 
     #[inline]

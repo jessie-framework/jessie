@@ -1,4 +1,4 @@
-#!emit tokens
+#! --test=emit-tokens
 c"c string"
 
 c"all escapes in one line : \" \' \x32 \n \r \t \\ \0"

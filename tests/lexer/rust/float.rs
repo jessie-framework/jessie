@@ -1,4 +1,4 @@
-#!emit tokens
+#! --test=emit-tokens
 // no suffix
 
 123.0

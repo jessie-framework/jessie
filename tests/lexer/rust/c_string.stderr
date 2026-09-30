@@ -1,5 +1,5 @@
-c"c string" [(c string)@<14;25>]
-c"all escapes in one line : \" \' \x32 \n \r \t \\ \0" [(c string)@<27;81>]
+c"c string" [(c string)@<22;33>]
+c"all escapes in one line : \" \' \x32 \n \r \t \\ \0" [(c string)@<35;89>]
 c"
 all escapes in multiple lines :
 \"
@@ -10,21 +10,21 @@ all escapes in multiple lines :
 \t
 \\
 \0
-" [(c string)@<83;145>]
+" [(c string)@<91;153>]
 c"
     multi
     line
     string
-" [(c string)@<147;181>]
+" [(c string)@<155;189>]
 c"multi\
 line\
 c\
 string\
 with\
 these\
-" [(c string)@<183;223>]
-c"c string"suffix [(suffixed c string)@<229;246>]
-c"all escapes in one line : \" \' \x32 \n \r \t \\ \0 "suffix [(suffixed c string)@<248;309>]
+" [(c string)@<191;231>]
+c"c string"suffix [(suffixed c string)@<237;254>]
+c"all escapes in one line : \" \' \x32 \n \r \t \\ \0 "suffix [(suffixed c string)@<256;317>]
 c"
 all escapes in multiple lines :
 \"
@@ -35,17 +35,17 @@ all escapes in multiple lines :
 \t
 \\
 \0
-"suffix [(suffixed c string)@<311;379>]
+"suffix [(suffixed c string)@<319;387>]
 c"
     multi
     line
     c
     string
-"suffix [(suffixed c string)@<381;427>]
+"suffix [(suffixed c string)@<389;435>]
 c"multi\
 line\
 c\
 string\
 with\
 these\
-"suffix [(suffixed c string)@<429;475>]
+"suffix [(suffixed c string)@<437;483>]

@@ -1,5 +1,5 @@
-"string" [(string)@<14;22>]
-"all escapes in one line : \" \' \x32 \n \r \t \\ \0" [(string)@<24;77>]
+"string" [(string)@<22;30>]
+"all escapes in one line : \" \' \x32 \n \r \t \\ \0" [(string)@<32;85>]
 "
 all escapes in multiple lines :
 \"
@@ -10,20 +10,20 @@ all escapes in multiple lines :
 \t
 \\
 \0
-" [(string)@<79;140>]
+" [(string)@<87;148>]
 "
     multi
     line
     string
-" [(string)@<142;175>]
+" [(string)@<150;183>]
 "multi\
 line\
 string\
 with\
 these\
-" [(string)@<177;213>]
-"string"suffix [(suffixed string)@<219;233>]
-"all escapes in one line : \" \' \x32 \n \r \t \\ \0 "suffix [(suffixed string)@<235;295>]
+" [(string)@<185;221>]
+"string"suffix [(suffixed string)@<227;241>]
+"all escapes in one line : \" \' \x32 \n \r \t \\ \0 "suffix [(suffixed string)@<243;303>]
 "
 all escapes in multiple lines :
 \"
@@ -34,15 +34,15 @@ all escapes in multiple lines :
 \t
 \\
 \0
-"suffix [(suffixed string)@<297;364>]
+"suffix [(suffixed string)@<305;372>]
 "
     multi
     line
     string
-"suffix [(suffixed string)@<366;405>]
+"suffix [(suffixed string)@<374;413>]
 "multi\
 line\
 string\
 with\
 these\
-"suffix [(suffixed string)@<407;449>]
+"suffix [(suffixed string)@<415;457>]

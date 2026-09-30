@@ -1,4 +1,4 @@
-#!emit tokens
+#! --test=emit-tokens
 b"byte string"
 
 b"all escapes in one line : \" \' \x32 \n \r \t \\ \0"

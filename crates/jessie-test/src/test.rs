@@ -18,7 +18,7 @@ pub fn bless_tests(test_path: PathBuf, cwd: &Path) {
             let Some(extension) = entry.path().extension() else {
                 continue;
             };
-            if extension == "rs" {
+            if extension == "rs" || extension == "jessie" {
                 run_test_rs(entry.path(), true, cwd);
             }
         }
@@ -65,44 +65,21 @@ fn file_read_shebang(path: &Path) -> Option<String> {
 
 fn run_test_rs(path: &Path, bless: bool, cwd: &Path) {
     if let Some(shebang) = file_read_shebang(path) {
-        match shebang.as_str() {
-            "emit tokens" => {
-                check_command(
-                    path,
-                    Command::new("cargo")
-                        .arg("-q")
-                        .arg("run")
-                        .arg("--features")
-                        .arg("testing")
-                        .arg("--")
-                        .arg("--path")
-                        .arg(path)
-                        .arg("--")
-                        .arg("--test=emit-tokens")
-                        .current_dir(cwd),
-                    bless,
-                );
-            }
-            "recreate" => {
-                check_command(
-                    path,
-                    Command::new("cargo")
-                        .arg("-q")
-                        .arg("run")
-                        .arg("--features")
-                        .arg("testing")
-                        .arg("--")
-                        .arg("--path")
-                        .arg(path)
-                        .arg("--")
-                        .arg("--test=recreate")
-                        .current_dir(cwd),
-                    bless,
-                );
-            }
-            "todo" => todo!(),
-            _ => {}
-        }
+        check_command(
+            path,
+            Command::new("cargo")
+                .arg("-q")
+                .arg("run")
+                .arg("--features")
+                .arg("testing")
+                .arg("--")
+                .arg("--path")
+                .arg(path)
+                .arg("--")
+                .arg(shebang.as_str().trim_start())
+                .current_dir(cwd),
+            bless,
+        );
     }
 }
 

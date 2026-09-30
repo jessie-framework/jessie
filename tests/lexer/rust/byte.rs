@@ -1,4 +1,4 @@
-#!emit tokens
+#! --test=emit-tokens
 // byte literal unsuffixed
 b'a'
 // quote escape unsuffixed

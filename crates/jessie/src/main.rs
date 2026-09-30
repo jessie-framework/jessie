@@ -70,5 +70,24 @@ fn main() {
         eprintln!("{out}");
         std::process::exit(0);
     }
-    // [1,2,3]4,5,6[7,8,9]
+
+    #[cfg(feature = "testing")]
+    if flags.contains(&args::Flag::EmitAst) {
+        use jessie_ast::{TokenStream, parser::Parser};
+
+        let (src, sp) = sess.sm.open(&args.path).unwrap_or_else(|_| {
+            use colorful::Colorful;
+            eprintln!("{}: failed to open path {:#?}", "ERROR".red(), args.path);
+            std::process::exit(1);
+        });
+        let src = &src.to_string();
+        let lexer = jessie_rust_lex::Lexer::new(src, sp, &mut sess);
+        let ts = TokenStream::new(lexer);
+        let mut parser = Parser::new(ts, &mut sess);
+        let doc = parser.parse_document();
+
+        sess.report_errs();
+        eprintln!("{doc:#?}");
+        std::process::exit(0);
+    }
 }

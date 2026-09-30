@@ -1,16 +1,16 @@
-//! inner line doc comment [(inner line doc comment)@<78;104>]
-/*! inner block doc comment */ [(inner block doc comment)@<106;136>]
+//! inner line doc comment [(inner line doc comment)@<86;112>]
+/*! inner block doc comment */ [(inner block doc comment)@<114;144>]
 /*!
 also
 inner
 block
 doc
 comment
-*/ [(inner block doc comment)@<138;173>]
-/// outer line doc comment [(outer line doc comment)@<175;201>]
+*/ [(inner block doc comment)@<146;181>]
+/// outer line doc comment [(outer line doc comment)@<183;209>]
 /**
 outer
 block
 doc
 comment
-*/ [(outer block doc comment)@<203;233>]
+*/ [(outer block doc comment)@<211;241>]

@@ -1,0 +1,84 @@
+Document {
+    items: [
+        Item {
+            span: Span(
+                20,
+                44,
+            ),
+            kind: Uniform(
+                UniformStmt {
+                    name: "x",
+                    ty: Path(
+                        TyPath {
+                            is_root: false,
+                            path: [
+                                "f32",
+                            ],
+                            generics: None,
+                        },
+                    ),
+                },
+            ),
+        },
+        Item {
+            span: Span(
+                37,
+                62,
+            ),
+            kind: Uniform(
+                UniformStmt {
+                    name: "y",
+                    ty: Path(
+                        TyPath {
+                            is_root: false,
+                            path: [
+                                "vec2",
+                            ],
+                            generics: None,
+                        },
+                    ),
+                },
+            ),
+        },
+        Item {
+            span: Span(
+                55,
+                80,
+            ),
+            kind: Uniform(
+                UniformStmt {
+                    name: "z",
+                    ty: Path(
+                        TyPath {
+                            is_root: false,
+                            path: [
+                                "vec3",
+                            ],
+                            generics: None,
+                        },
+                    ),
+                },
+            ),
+        },
+        Item {
+            span: Span(
+                73,
+                93,
+            ),
+            kind: Uniform(
+                UniformStmt {
+                    name: "t",
+                    ty: Path(
+                        TyPath {
+                            is_root: false,
+                            path: [
+                                "vec4",
+                            ],
+                            generics: None,
+                        },
+                    ),
+                },
+            ),
+        },
+    ],
+}

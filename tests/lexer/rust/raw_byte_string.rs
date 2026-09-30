@@ -1,4 +1,4 @@
-#!emit tokens
+#! --test=emit-tokens
 br"raw byte string without hashes"
 
 br#"raw byte string with 1 hash \n \n \n"#

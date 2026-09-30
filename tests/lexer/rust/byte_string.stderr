@@ -1,5 +1,5 @@
-b"byte string" [(byte string)@<14;28>]
-b"all escapes in one line : \" \' \x32 \n \r \t \\ \0" [(byte string)@<30;84>]
+b"byte string" [(byte string)@<22;36>]
+b"all escapes in one line : \" \' \x32 \n \r \t \\ \0" [(byte string)@<38;92>]
 b"
 all escapes in multiple lines :
 \"
@@ -10,20 +10,20 @@ all escapes in multiple lines :
 \t
 \\
 \0
-" [(byte string)@<86;148>]
+" [(byte string)@<94;156>]
 b"
     multi
     line
     string
-" [(byte string)@<150;184>]
+" [(byte string)@<158;192>]
 b"multi\
 line\
 string\
 with\
 these\
-" [(byte string)@<186;223>]
-b"byte string"suffix [(suffixed byte string)@<229;249>]
-b"all escapes in one line : \" \' \x32 \n \r \t \\ \0 "suffix [(suffixed byte string)@<251;312>]
+" [(byte string)@<194;231>]
+b"byte string"suffix [(suffixed byte string)@<237;257>]
+b"all escapes in one line : \" \' \x32 \n \r \t \\ \0 "suffix [(suffixed byte string)@<259;320>]
 b"
 all escapes in multiple lines :
 \"
@@ -34,15 +34,15 @@ all escapes in multiple lines :
 \t
 \\
 \0
-"suffix [(suffixed byte string)@<314;382>]
+"suffix [(suffixed byte string)@<322;390>]
 b"
     multi
     line
     string
-"suffix [(suffixed byte string)@<384;424>]
+"suffix [(suffixed byte string)@<392;432>]
 b"multi\
 line\
 string\
 with\
 these\
-"suffix [(suffixed byte string)@<426;469>]
+"suffix [(suffixed byte string)@<434;477>]

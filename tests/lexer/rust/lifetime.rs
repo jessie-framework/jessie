@@ -1,4 +1,4 @@
-#!emit tokens
+#! --test=emit-tokens
 
 'a
 'b

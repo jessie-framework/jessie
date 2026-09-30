@@ -1,0 +1,8 @@
+#! --test=emit-ast
+
+uniform x : f32;
+uniform y : vec2;
+uniform z : vec3;
+uniform t : vec4;
+
+

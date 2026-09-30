@@ -1,4 +1,4 @@
-#!emit tokens
+#! --test=emit-tokens
 cr"raw c string without hashes"
 
 cr#"raw c string with 1 hash \n \n \n"#

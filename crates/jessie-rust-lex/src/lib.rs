@@ -1502,7 +1502,7 @@ impl Token {
     }
 }
 
-#[derive(Debug, Clone, Copy, Hash)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum TokenKind {
     /// ...
     DotDotDot,
@@ -1648,7 +1648,7 @@ impl TokenKind {
     }
 }
 
-#[derive(Debug, Clone, Copy, Hash)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum LitKind {
     /// 'a'
     Char,
@@ -1697,7 +1697,7 @@ impl std::fmt::Display for LitKind {
     }
 }
 
-#[derive(Debug, Clone, Copy, Hash)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub struct Exponent(Span);
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
@@ -1720,7 +1720,7 @@ pub enum HasUnderscore {
     No,
 }
 
-#[derive(Debug, Clone, Copy, Hash)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub struct Suffix(Span);
 
 impl Suffix {

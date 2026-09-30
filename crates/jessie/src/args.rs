@@ -19,6 +19,8 @@ impl Args {
                 "--test=emit-tokens" => out.push(Flag::EmitTokens),
                 #[cfg(feature = "testing")]
                 "--test=recreate" => out.push(Flag::Recreate),
+                #[cfg(feature = "testing")]
+                "--test=emit-ast" => out.push(Flag::EmitAst),
                 err => {
                     println!("{}: unexpected flag {err}", "ERROR".red(),);
                 }
@@ -34,4 +36,6 @@ pub enum Flag {
     EmitTokens,
     #[cfg(feature = "testing")]
     Recreate,
+    #[cfg(feature = "testing")]
+    EmitAst,
 }
