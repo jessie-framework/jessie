@@ -1,0 +1,175 @@
+Document {
+    items: [
+        Item {
+            span: Span(
+                18,
+                44,
+            ),
+            kind: Uniform(
+                UniformStmt {
+                    name: "never",
+                    ty: Never,
+                },
+            ),
+        },
+        Item {
+            span: Span(
+                37,
+                62,
+            ),
+            kind: Uniform(
+                UniformStmt {
+                    name: "ref",
+                    ty: Ref(
+                        None,
+                        Const,
+                        Never,
+                    ),
+                },
+            ),
+        },
+        Item {
+            span: Span(
+                55,
+                90,
+            ),
+            kind: Uniform(
+                UniformStmt {
+                    name: "ref_with_lt",
+                    ty: Ref(
+                        Some(
+                            Lt(
+                                "a",
+                            ),
+                        ),
+                        Const,
+                        Never,
+                    ),
+                },
+            ),
+        },
+        Item {
+            span: Span(
+                83,
+                116,
+            ),
+            kind: Uniform(
+                UniformStmt {
+                    name: "ref_mut",
+                    ty: Ref(
+                        None,
+                        Mut,
+                        Never,
+                    ),
+                },
+            ),
+        },
+        Item {
+            span: Span(
+                109,
+                153,
+            ),
+            kind: Uniform(
+                UniformStmt {
+                    name: "ref_mut_with_lt",
+                    ty: Ref(
+                        Some(
+                            Lt(
+                                "a",
+                            ),
+                        ),
+                        Mut,
+                        Never,
+                    ),
+                },
+            ),
+        },
+        Item {
+            span: Span(
+                146,
+                174,
+            ),
+            kind: Uniform(
+                UniformStmt {
+                    name: "path",
+                    ty: Path(
+                        TyPath {
+                            is_root: false,
+                            path: [
+                                "path",
+                            ],
+                            generics: None,
+                        },
+                    ),
+                },
+            ),
+        },
+        Item {
+            span: Span(
+                167,
+                199,
+            ),
+            kind: Uniform(
+                UniformStmt {
+                    name: "tup",
+                    ty: Tuple(
+                        [
+                            Path(
+                                TyPath {
+                                    is_root: false,
+                                    path: [
+                                        "u32",
+                                    ],
+                                    generics: None,
+                                },
+                            ),
+                            Path(
+                                TyPath {
+                                    is_root: false,
+                                    path: [
+                                        "u32",
+                                    ],
+                                    generics: None,
+                                },
+                            ),
+                        ],
+                    ),
+                },
+            ),
+        },
+        Item {
+            span: Span(
+                192,
+                236,
+            ),
+            kind: Uniform(
+                UniformStmt {
+                    name: "path_with_generics",
+                    ty: Path(
+                        TyPath {
+                            is_root: false,
+                            path: [
+                                "path",
+                            ],
+                            generics: Some(
+                                [
+                                    Ty(
+                                        Path(
+                                            TyPath {
+                                                is_root: false,
+                                                path: [
+                                                    "generic",
+                                                ],
+                                                generics: None,
+                                            },
+                                        ),
+                                    ),
+                                ],
+                            ),
+                        },
+                    ),
+                },
+            ),
+        },
+    ],
+}
