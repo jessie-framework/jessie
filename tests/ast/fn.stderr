@@ -1,0 +1,143 @@
+Document {
+    items: [
+        Item {
+            span: Span(
+                18,
+                33,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 1,
+            },
+            kind: Fn(
+                ItemFn {
+                    unsafeness: Default,
+                    name: Ident {
+                        span: Span(
+                            21,
+                            25,
+                        ),
+                        src: Symbol(
+                            SymbolIndex {
+                                private_use_as_methods_instead: 1,
+                            },
+                        ),
+                    },
+                    generics: None,
+                    params: [],
+                    ret_ty: None,
+                    block: Block {
+                        stmts: [],
+                    },
+                },
+            ),
+        },
+        Item {
+            span: Span(
+                32,
+                63,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 2,
+            },
+            kind: Fn(
+                ItemFn {
+                    unsafeness: Default,
+                    name: Ident {
+                        span: Span(
+                            35,
+                            39,
+                        ),
+                        src: Symbol(
+                            SymbolIndex {
+                                private_use_as_methods_instead: 2,
+                            },
+                        ),
+                    },
+                    generics: None,
+                    params: [
+                        TyBinding(
+                            Ident(
+                                Ident {
+                                    span: Span(
+                                        40,
+                                        45,
+                                    ),
+                                    src: Symbol(
+                                        SymbolIndex {
+                                            private_use_as_methods_instead: 3,
+                                        },
+                                    ),
+                                },
+                            ),
+                            Ty {
+                                kind: TyPath(
+                                    TyPath {
+                                        is_root: false,
+                                        segments: [
+                                            TyPathSegment {
+                                                ident: Ident {
+                                                    span: Span(
+                                                        47,
+                                                        51,
+                                                    ),
+                                                    src: Symbol(
+                                                        SymbolIndex {
+                                                            private_use_as_methods_instead: 4,
+                                                        },
+                                                    ),
+                                                },
+                                                generics: None,
+                                            },
+                                        ],
+                                    },
+                                ),
+                                span: Span(
+                                    47,
+                                    50,
+                                ),
+                                id: NodeId {
+                                    private_use_as_methods_instead: 3,
+                                },
+                            },
+                        ),
+                    ],
+                    ret_ty: Some(
+                        Ty {
+                            kind: TyPath(
+                                TyPath {
+                                    is_root: false,
+                                    segments: [
+                                        TyPathSegment {
+                                            ident: Ident {
+                                                span: Span(
+                                                    56,
+                                                    60,
+                                                ),
+                                                src: Symbol(
+                                                    SymbolIndex {
+                                                        private_use_as_methods_instead: 5,
+                                                    },
+                                                ),
+                                            },
+                                            generics: None,
+                                        },
+                                    ],
+                                },
+                            ),
+                            span: Span(
+                                56,
+                                60,
+                            ),
+                            id: NodeId {
+                                private_use_as_methods_instead: 4,
+                            },
+                        },
+                    ),
+                    block: Block {
+                        stmts: [],
+                    },
+                },
+            ),
+        },
+    ],
+}

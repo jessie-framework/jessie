@@ -1,175 +1,885 @@
+
+                ERROR : expected item, found ident
+                    -> at $PATH line 2 row 9
+                ```
+                   never 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 2 row 15
+                ```
+                   : 
+                ```
+            
+                ERROR : expected item, found colon sign
+                    -> at $PATH line 2 row 17
+                ```
+                   ! 
+                ```
+            
+                ERROR : expected item, found exclamation mark
+                    -> at $PATH line 2 row 18
+                ```
+                   ; 
+                ```
+            
+                ERROR : expected item, found semicolon
+                    -> at $PATH line 3 row 1
+                ```
+                   uniform 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 3 row 9
+                ```
+                   ref 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 3 row 13
+                ```
+                   : 
+                ```
+            
+                ERROR : expected item, found colon sign
+                    -> at $PATH line 3 row 15
+                ```
+                   & 
+                ```
+            
+                ERROR : expected item, found ampersand
+                    -> at $PATH line 3 row 16
+                ```
+                   ! 
+                ```
+            
+                ERROR : expected item, found exclamation mark
+                    -> at $PATH line 3 row 17
+                ```
+                   ; 
+                ```
+            
+                ERROR : expected item, found semicolon
+                    -> at $PATH line 4 row 1
+                ```
+                   uniform 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 4 row 9
+                ```
+                   ref_with_lt 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 4 row 20
+                ```
+                   : 
+                ```
+            
+                ERROR : expected item, found colon sign
+                    -> at $PATH line 4 row 22
+                ```
+                   & 
+                ```
+            
+                ERROR : expected item, found ampersand
+                    -> at $PATH line 4 row 23
+                ```
+                   'a 
+                ```
+            
+                ERROR : expected item, found lifetime
+                    -> at $PATH line 4 row 26
+                ```
+                   ! 
+                ```
+            
+                ERROR : expected item, found exclamation mark
+                    -> at $PATH line 4 row 27
+                ```
+                   ; 
+                ```
+            
+                ERROR : expected item, found semicolon
+                    -> at $PATH line 5 row 1
+                ```
+                   uniform 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 5 row 9
+                ```
+                   ref_mut 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 5 row 17
+                ```
+                   : 
+                ```
+            
+                ERROR : expected item, found colon sign
+                    -> at $PATH line 5 row 19
+                ```
+                   & 
+                ```
+            
+                ERROR : expected item, found ampersand
+                    -> at $PATH line 5 row 20
+                ```
+                   mut 
+                ```
+            
+                ERROR : expected item, found mut
+                    -> at $PATH line 5 row 24
+                ```
+                   ! 
+                ```
+            
+                ERROR : expected item, found exclamation mark
+                    -> at $PATH line 5 row 25
+                ```
+                   ; 
+                ```
+            
+                ERROR : expected item, found semicolon
+                    -> at $PATH line 6 row 1
+                ```
+                   uniform 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 6 row 9
+                ```
+                   ref_mut_with_lt 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 6 row 25
+                ```
+                   : 
+                ```
+            
+                ERROR : expected item, found colon sign
+                    -> at $PATH line 6 row 27
+                ```
+                   & 
+                ```
+            
+                ERROR : expected item, found ampersand
+                    -> at $PATH line 6 row 28
+                ```
+                   'a 
+                ```
+            
+                ERROR : expected item, found lifetime
+                    -> at $PATH line 6 row 31
+                ```
+                   mut 
+                ```
+            
+                ERROR : expected item, found mut
+                    -> at $PATH line 6 row 35
+                ```
+                   ! 
+                ```
+            
+                ERROR : expected item, found exclamation mark
+                    -> at $PATH line 6 row 36
+                ```
+                   ; 
+                ```
+            
+                ERROR : expected item, found semicolon
+                    -> at $PATH line 7 row 1
+                ```
+                   uniform 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 7 row 9
+                ```
+                   path 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 7 row 14
+                ```
+                   : 
+                ```
+            
+                ERROR : expected item, found colon sign
+                    -> at $PATH line 7 row 16
+                ```
+                   path 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 7 row 20
+                ```
+                   ; 
+                ```
+            
+                ERROR : expected item, found semicolon
+                    -> at $PATH line 8 row 1
+                ```
+                   uniform 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 8 row 9
+                ```
+                   tup 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 8 row 13
+                ```
+                   : 
+                ```
+            
+                ERROR : expected item, found colon sign
+                    -> at $PATH line 8 row 15
+                ```
+                   ( 
+                ```
+            
+                ERROR : expected item, found left paranthesis
+                    -> at $PATH line 8 row 16
+                ```
+                   u32 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 8 row 19
+                ```
+                   , 
+                ```
+            
+                ERROR : expected item, found comma
+                    -> at $PATH line 8 row 20
+                ```
+                   u32 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 8 row 23
+                ```
+                   ) 
+                ```
+            
+                ERROR : expected item, found right paranthesis
+                    -> at $PATH line 8 row 24
+                ```
+                   ; 
+                ```
+            
+                ERROR : expected item, found semicolon
+                    -> at $PATH line 9 row 1
+                ```
+                   uniform 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 9 row 9
+                ```
+                   path_with_generics 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 9 row 28
+                ```
+                   : 
+                ```
+            
+                ERROR : expected item, found colon sign
+                    -> at $PATH line 9 row 30
+                ```
+                   path 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 9 row 34
+                ```
+                   < 
+                ```
+            
+                ERROR : expected item, found less than sign
+                    -> at $PATH line 9 row 35
+                ```
+                   generic 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 9 row 42
+                ```
+                   > 
+                ```
+            
+                ERROR : expected item, found greater than sign
+                    -> at $PATH line 9 row 43
+                ```
+                   ; 
+                ```
+            
+                ERROR : expected item, found semicolon
+                    -> at $PATH line 10 row 1
+                ```
+                    
+                ```
+            
 Document {
     items: [
         Item {
             span: Span(
                 18,
-                44,
+                30,
             ),
-            kind: Uniform(
-                UniformStmt {
-                    name: "never",
-                    ty: Never,
-                },
+            id: NodeId {
+                private_use_as_methods_instead: 1,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                26,
+                32,
             ),
+            id: NodeId {
+                private_use_as_methods_instead: 2,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                32,
+                34,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 3,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                34,
+                35,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 4,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                35,
+                43,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 5,
+            },
+            kind: Err,
         },
         Item {
             span: Span(
                 37,
-                62,
+                47,
             ),
-            kind: Uniform(
-                UniformStmt {
-                    name: "ref",
-                    ty: Ref(
-                        None,
-                        Const,
-                        Never,
-                    ),
-                },
+            id: NodeId {
+                private_use_as_methods_instead: 6,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                45,
+                49,
             ),
+            id: NodeId {
+                private_use_as_methods_instead: 7,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                49,
+                51,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 8,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                51,
+                52,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 9,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                52,
+                53,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 10,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                53,
+                61,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 11,
+            },
+            kind: Err,
         },
         Item {
             span: Span(
                 55,
-                90,
+                73,
             ),
-            kind: Uniform(
-                UniformStmt {
-                    name: "ref_with_lt",
-                    ty: Ref(
-                        Some(
-                            Lt(
-                                "a",
-                            ),
-                        ),
-                        Const,
-                        Never,
-                    ),
-                },
+            id: NodeId {
+                private_use_as_methods_instead: 12,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                63,
+                74,
             ),
+            id: NodeId {
+                private_use_as_methods_instead: 13,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                74,
+                76,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 14,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                76,
+                78,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 15,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                77,
+                80,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 16,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                80,
+                81,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 17,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                81,
+                89,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 18,
+            },
+            kind: Err,
         },
         Item {
             span: Span(
                 83,
-                116,
+                97,
             ),
-            kind: Uniform(
-                UniformStmt {
-                    name: "ref_mut",
-                    ty: Ref(
-                        None,
-                        Mut,
-                        Never,
-                    ),
-                },
+            id: NodeId {
+                private_use_as_methods_instead: 19,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                91,
+                99,
             ),
+            id: NodeId {
+                private_use_as_methods_instead: 20,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                99,
+                101,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 21,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                101,
+                104,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 22,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                102,
+                106,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 23,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                106,
+                107,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 24,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                107,
+                115,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 25,
+            },
+            kind: Err,
         },
         Item {
             span: Span(
                 109,
-                153,
+                131,
             ),
-            kind: Uniform(
-                UniformStmt {
-                    name: "ref_mut_with_lt",
-                    ty: Ref(
-                        Some(
-                            Lt(
-                                "a",
-                            ),
-                        ),
-                        Mut,
-                        Never,
-                    ),
-                },
+            id: NodeId {
+                private_use_as_methods_instead: 26,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                117,
+                133,
             ),
+            id: NodeId {
+                private_use_as_methods_instead: 27,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                133,
+                135,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 28,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                135,
+                137,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 29,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                136,
+                141,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 30,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                139,
+                143,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 31,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                143,
+                144,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 32,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                144,
+                152,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 33,
+            },
+            kind: Err,
         },
         Item {
             span: Span(
                 146,
-                174,
+                157,
             ),
-            kind: Uniform(
-                UniformStmt {
-                    name: "path",
-                    ty: Path(
-                        TyPath {
-                            is_root: false,
-                            path: [
-                                "path",
-                            ],
-                            generics: None,
-                        },
-                    ),
-                },
+            id: NodeId {
+                private_use_as_methods_instead: 34,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                154,
+                159,
             ),
+            id: NodeId {
+                private_use_as_methods_instead: 35,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                159,
+                164,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 36,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                161,
+                165,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 37,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                165,
+                173,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 38,
+            },
+            kind: Err,
         },
         Item {
             span: Span(
                 167,
-                199,
+                177,
             ),
-            kind: Uniform(
-                UniformStmt {
-                    name: "tup",
-                    ty: Tuple(
-                        [
-                            Path(
-                                TyPath {
-                                    is_root: false,
-                                    path: [
-                                        "u32",
-                                    ],
-                                    generics: None,
-                                },
-                            ),
-                            Path(
-                                TyPath {
-                                    is_root: false,
-                                    path: [
-                                        "u32",
-                                    ],
-                                    generics: None,
-                                },
-                            ),
-                        ],
-                    ),
-                },
+            id: NodeId {
+                private_use_as_methods_instead: 39,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                175,
+                179,
             ),
+            id: NodeId {
+                private_use_as_methods_instead: 40,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                179,
+                181,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 41,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                181,
+                184,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 42,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                182,
+                185,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 43,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                185,
+                188,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 44,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                186,
+                189,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 45,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                189,
+                190,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 46,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                190,
+                198,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 47,
+            },
+            kind: Err,
         },
         Item {
             span: Span(
                 192,
-                236,
+                217,
             ),
-            kind: Uniform(
-                UniformStmt {
-                    name: "path_with_generics",
-                    ty: Path(
-                        TyPath {
-                            is_root: false,
-                            path: [
-                                "path",
-                            ],
-                            generics: Some(
-                                [
-                                    Ty(
-                                        Path(
-                                            TyPath {
-                                                is_root: false,
-                                                path: [
-                                                    "generic",
-                                                ],
-                                                generics: None,
-                                            },
-                                        ),
-                                    ),
-                                ],
-                            ),
-                        },
-                    ),
-                },
+            id: NodeId {
+                private_use_as_methods_instead: 48,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                200,
+                219,
             ),
+            id: NodeId {
+                private_use_as_methods_instead: 49,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                219,
+                224,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 50,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                221,
+                225,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 51,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                225,
+                232,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 52,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                226,
+                233,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 53,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                233,
+                234,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 54,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                234,
+                235,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 55,
+            },
+            kind: Err,
         },
     ],
 }

@@ -9,6 +9,7 @@ dependencies = [
  "jessie-rust-lex",
  "jessie-session",
  "jessie-span",
+ "thin-vec",
 ]
 
 [[package]]
@@ -30,6 +31,12 @@ dependencies = [
 [[package]]
 name = "jessie-span"
 version = "0.1.0"
+
+[[package]]
+name = "thin-vec"
+version = "0.2.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4568d7e143ec86d2021c338bae2afa88699e84b8e0af523626654fe6f03a1748"
 
 [[package]]
 name = "unicode-xid"

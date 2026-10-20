@@ -1,4 +1,17 @@
-use std::path::{Path, PathBuf};
+use std::{
+    num::{NonZero, NonZeroU32},
+    path::{Path, PathBuf},
+};
+
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+#[repr(transparent)]
+pub struct Symbol(SymbolIndex);
+
+#[repr(transparent)]
+#[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
+pub struct SymbolIndex {
+    pub private_use_as_methods_instead: NonZeroU32,
+}
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub struct Span(u32, u32);
@@ -64,6 +77,8 @@ impl Span {
 pub struct SourceMap {
     paths: Vec<(PathBuf, Span)>,
     src: String,
+    symbol_spans: Vec<Span>,
+    last_sym: u32,
     last: usize,
 }
 
@@ -79,6 +94,8 @@ impl SourceMap {
             paths: Vec::with_capacity(100),
             src: String::with_capacity(10000),
             last: 0,
+            symbol_spans: Vec::with_capacity(1000),
+            last_sym: 0,
         }
     }
 
@@ -95,6 +112,35 @@ impl SourceMap {
         let sp = Span::new(lo, hi);
         self.paths.push((path.to_owned(), sp));
         Ok((self.span_str(sp), sp))
+    }
+
+    pub fn new_sym(&mut self, src: &str) -> Symbol {
+        self.last_sym += 1;
+        let lo = self.src.len();
+        self.src.push_str(src);
+        let hi = self.src.len();
+        let span = Span::new(lo as u32, hi as u32);
+        self.symbol_spans.push(span);
+        unsafe {
+            Symbol(SymbolIndex {
+                private_use_as_methods_instead: NonZero::new_unchecked(self.last_sym),
+            })
+        }
+    }
+
+    pub fn new_sym_from_span(&mut self, span: Span) -> Symbol {
+        self.last_sym += 1;
+        self.symbol_spans.push(span);
+        unsafe {
+            Symbol(SymbolIndex {
+                private_use_as_methods_instead: NonZero::new_unchecked(self.last_sym),
+            })
+        }
+    }
+
+    pub fn sym_str(&self, sym: Symbol) -> &str {
+        let sp = self.symbol_spans[sym.0.private_use_as_methods_instead.get() as usize - 1];
+        &self.src[sp.lo() as usize..sp.hi() as usize]
     }
 
     pub fn span_str(&self, sp: Span) -> &str {
