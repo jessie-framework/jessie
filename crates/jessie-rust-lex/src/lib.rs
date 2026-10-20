@@ -6,6 +6,28 @@ use unicode_xid::UnicodeXID;
 
 use crate::TokenKind::DocComment;
 
+pub mod diagnostics {
+    use jessie_session::Diagnostic;
+    use jessie_span::Span;
+
+    use crate::TokenKind;
+
+    pub struct UnexpectedToken {
+        pub expected: TokenKind,
+        pub found: TokenKind,
+        pub span: Span,
+    }
+
+    impl Diagnostic for UnexpectedToken {
+        fn diag(self, sess: &mut jessie_session::Session) {
+            sess.new_err_sp(
+                self.span,
+                &format!("expected {}, found {}", self.expected, self.found),
+            );
+        }
+    }
+}
+
 pub struct Lexer<'a> {
     iter: Normalizer<'a>,
     sess: &'a mut Session,
@@ -32,8 +54,54 @@ impl<'a> Lexer<'a> {
             Some('b') => self.lex_generic_b_token(lo),
             Some('c') => self.lex_generic_c_token(lo),
             Some(v) if v.is_xid_start() || v == '_' => {
-                let kind = self.lex_ident_or_keyword();
+                let mut kind = self.lex_ident_or_keyword();
                 let hi = self.iter.idx();
+                let span = Span::new(lo, hi);
+
+                if span.len() <= 8 {
+                    use TokenKind as Tk;
+                    kind = match self.sess.sm.span_str(span) {
+                        "as" => Tk::As,
+                        "async" => Tk::Async,
+                        "await" => Tk::Await,
+                        "break" => Tk::Break,
+                        "const" => Tk::Const,
+                        "continue" => Tk::Continue,
+                        "crate" => Tk::Crate,
+                        "dyn" => Tk::Dyn,
+                        "else" => Tk::Else,
+                        "enum" => Tk::Enum,
+                        "extern" => Tk::Extern,
+                        "false" => Tk::False,
+                        "fn" => Tk::Fn,
+                        "for" => Tk::For,
+                        "if" => Tk::If,
+                        "impl" => Tk::Impl,
+                        "in" => Tk::In,
+                        "let" => Tk::Let,
+                        "loop" => Tk::Loop,
+                        "match" => Tk::Match,
+                        "mod" => Tk::Mod,
+                        "move" => Tk::Move,
+                        "mut" => Tk::Mut,
+                        "pub" => Tk::Pub,
+                        "ref" => Tk::Ref,
+                        "return" => Tk::Return,
+                        "self" => Tk::_self,
+                        "Self" => Tk::_Self,
+                        "static" => Tk::Static,
+                        "struct" => Tk::Struct,
+                        "super" => Tk::Super,
+                        "trait" => Tk::Trait,
+                        "true" => Tk::True,
+                        "type" => Tk::Type,
+                        "unsafe" => Tk::Unsafe,
+                        "use" => Tk::Use,
+                        "where" => Tk::Where,
+                        "while" => Tk::While,
+                        _ => kind,
+                    };
+                }
                 Token {
                     span: Span::new(lo, hi),
                     kind,
@@ -333,7 +401,7 @@ impl<'a> Lexer<'a> {
 
     fn lex_modulo(&mut self, lo: u32) -> Token {
         self.iter.next();
-        let mut kind = TokenKind::Mod;
+        let mut kind = TokenKind::Modulo;
         if let Some(peek) = self.iter.peek()
             && peek == '='
         {
@@ -1539,7 +1607,7 @@ pub enum TokenKind {
     /// %=
     ModEq,
     /// %
-    Mod,
+    Modulo,
     /// &&
     AndAnd,
     /// &=
@@ -1626,6 +1694,46 @@ pub enum TokenKind {
     Err,
     /// end of file (EOF)
     EOF,
+    /// as
+    As,
+    Async,
+    Await,
+    Break,
+    Const,
+    Continue,
+    Crate,
+    Dyn,
+    Else,
+    Enum,
+    Extern,
+    False,
+    Fn,
+    For,
+    If,
+    Impl,
+    In,
+    Let,
+    Loop,
+    Match,
+    Mod,
+    Move,
+    Mut,
+    Pub,
+    Ref,
+    Return,
+    #[allow(non_camel_case_types)]
+    _self,
+    _Self,
+    Static,
+    Struct,
+    Super,
+    Trait,
+    True,
+    Type,
+    Unsafe,
+    Use,
+    Where,
+    While,
 }
 
 impl TokenKind {
@@ -1764,7 +1872,7 @@ impl std::fmt::Display for TokenKind {
             Self::Bang => write!(f, "exclamation mark"),
             Self::Ident => write!(f, "ident"),
             Self::ModEq => write!(f, "modulo sign equal sign"),
-            Self::Mod => write!(f, "modulo sign"),
+            Self::Modulo => write!(f, "modulo sign"),
             Self::AndAnd => write!(f, "ampersand ampersand"),
             Self::AndEq => write!(f, "ampersand equal sign"),
             Self::And => write!(f, "ampersand"),
@@ -1818,6 +1926,44 @@ impl std::fmt::Display for TokenKind {
             ),
             Self::Err => write!(f, "unknown token"),
             Self::EOF => write!(f, "end of file"),
+            Self::As => write!(f, "as"),
+            Self::Async => write!(f, "async"),
+            Self::Await => write!(f, "await"),
+            Self::Break => write!(f, "break"),
+            Self::Const => write!(f, "const"),
+            Self::Continue => write!(f, "continue"),
+            Self::Crate => write!(f, "crate"),
+            Self::Dyn => write!(f, "dyn"),
+            Self::Else => write!(f, "else"),
+            Self::Enum => write!(f, "enum"),
+            Self::Extern => write!(f, "extern"),
+            Self::False => write!(f, "false"),
+            Self::Fn => write!(f, "fn"),
+            Self::For => write!(f, "for"),
+            Self::If => write!(f, "if"),
+            Self::Impl => write!(f, "impl"),
+            Self::In => write!(f, "in"),
+            Self::Let => write!(f, "let"),
+            Self::Loop => write!(f, "loop"),
+            Self::Match => write!(f, "match"),
+            Self::Mod => write!(f, "mod"),
+            Self::Move => write!(f, "move"),
+            Self::Mut => write!(f, "mut"),
+            Self::Pub => write!(f, "pub"),
+            Self::Ref => write!(f, "ref"),
+            Self::Return => write!(f, "return"),
+            Self::_self => write!(f, "self"),
+            Self::_Self => write!(f, "Self"),
+            Self::Static => write!(f, "static"),
+            Self::Struct => write!(f, "struct"),
+            Self::Super => write!(f, "super"),
+            Self::Trait => write!(f, "trait"),
+            Self::True => write!(f, "true"),
+            Self::Type => write!(f, "type"),
+            Self::Unsafe => write!(f, "unsafe"),
+            Self::Use => write!(f, "use"),
+            Self::Where => write!(f, "where"),
+            Self::While => write!(f, "while"),
         }
     }
 }

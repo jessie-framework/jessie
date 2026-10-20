@@ -1,84 +1,325 @@
+
+                ERROR : expected item, found ident
+                    -> at $PATH line 3 row 9
+                ```
+                   x 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 3 row 11
+                ```
+                   : 
+                ```
+            
+                ERROR : expected item, found colon sign
+                    -> at $PATH line 3 row 13
+                ```
+                   f32 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 3 row 16
+                ```
+                   ; 
+                ```
+            
+                ERROR : expected item, found semicolon
+                    -> at $PATH line 4 row 1
+                ```
+                   uniform 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 4 row 9
+                ```
+                   y 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 4 row 11
+                ```
+                   : 
+                ```
+            
+                ERROR : expected item, found colon sign
+                    -> at $PATH line 4 row 13
+                ```
+                   vec2 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 4 row 17
+                ```
+                   ; 
+                ```
+            
+                ERROR : expected item, found semicolon
+                    -> at $PATH line 5 row 1
+                ```
+                   uniform 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 5 row 9
+                ```
+                   z 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 5 row 11
+                ```
+                   : 
+                ```
+            
+                ERROR : expected item, found colon sign
+                    -> at $PATH line 5 row 13
+                ```
+                   vec3 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 5 row 17
+                ```
+                   ; 
+                ```
+            
+                ERROR : expected item, found semicolon
+                    -> at $PATH line 6 row 1
+                ```
+                   uniform 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 6 row 9
+                ```
+                   t 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 6 row 11
+                ```
+                   : 
+                ```
+            
+                ERROR : expected item, found colon sign
+                    -> at $PATH line 6 row 13
+                ```
+                   vec4 
+                ```
+            
+                ERROR : expected item, found ident
+                    -> at $PATH line 6 row 17
+                ```
+                   ; 
+                ```
+            
+                ERROR : expected item, found semicolon
+                    -> at $PATH line 9 row 1
+                ```
+                    
+                ```
+            
 Document {
     items: [
         Item {
             span: Span(
                 20,
-                44,
+                28,
             ),
-            kind: Uniform(
-                UniformStmt {
-                    name: "x",
-                    ty: Path(
-                        TyPath {
-                            is_root: false,
-                            path: [
-                                "f32",
-                            ],
-                            generics: None,
-                        },
-                    ),
-                },
+            id: NodeId {
+                private_use_as_methods_instead: 1,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                28,
+                30,
             ),
+            id: NodeId {
+                private_use_as_methods_instead: 2,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                30,
+                34,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 3,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                32,
+                35,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 4,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                35,
+                43,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 5,
+            },
+            kind: Err,
         },
         Item {
             span: Span(
                 37,
-                62,
+                45,
             ),
-            kind: Uniform(
-                UniformStmt {
-                    name: "y",
-                    ty: Path(
-                        TyPath {
-                            is_root: false,
-                            path: [
-                                "vec2",
-                            ],
-                            generics: None,
-                        },
-                    ),
-                },
+            id: NodeId {
+                private_use_as_methods_instead: 6,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                45,
+                47,
             ),
+            id: NodeId {
+                private_use_as_methods_instead: 7,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                47,
+                52,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 8,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                49,
+                53,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 9,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                53,
+                61,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 10,
+            },
+            kind: Err,
         },
         Item {
             span: Span(
                 55,
-                80,
+                63,
             ),
-            kind: Uniform(
-                UniformStmt {
-                    name: "z",
-                    ty: Path(
-                        TyPath {
-                            is_root: false,
-                            path: [
-                                "vec3",
-                            ],
-                            generics: None,
-                        },
-                    ),
-                },
+            id: NodeId {
+                private_use_as_methods_instead: 11,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                63,
+                65,
             ),
+            id: NodeId {
+                private_use_as_methods_instead: 12,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                65,
+                70,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 13,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                67,
+                71,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 14,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                71,
+                79,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 15,
+            },
+            kind: Err,
         },
         Item {
             span: Span(
                 73,
-                93,
+                81,
             ),
-            kind: Uniform(
-                UniformStmt {
-                    name: "t",
-                    ty: Path(
-                        TyPath {
-                            is_root: false,
-                            path: [
-                                "vec4",
-                            ],
-                            generics: None,
-                        },
-                    ),
-                },
+            id: NodeId {
+                private_use_as_methods_instead: 16,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                81,
+                83,
             ),
+            id: NodeId {
+                private_use_as_methods_instead: 17,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                83,
+                88,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 18,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                85,
+                89,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 19,
+            },
+            kind: Err,
+        },
+        Item {
+            span: Span(
+                89,
+                92,
+            ),
+            id: NodeId {
+                private_use_as_methods_instead: 20,
+            },
+            kind: Err,
         },
     ],
 }
