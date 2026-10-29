@@ -559,21 +559,18 @@ impl<'a> Lexer<'a> {
 
     fn lex_generic_number_token(&mut self, lo: u32) -> Token {
         let kind = self.lex_generic_digit_token();
-        if let TokenKind::Literal(LitKind::Integer(IntegerKind::Dec(has_underscore)), _) = kind {
+        if let TokenKind::Literal(LitKind::Integer, _) = kind {
             if let Some(suffix) = kind.get_suffix()
                 && (self.sess.sm.span_str(suffix.span()) == "e"
                     || self.sess.sm.span_str(suffix.span()) == "E")
             {
-                let exponent = self.lex_exponent();
+                let _exponent = self.lex_exponent();
                 let suffix = self.skip_suffix();
                 let hi = self.iter.idx();
                 let span = Span::new(lo, hi);
                 return Token {
                     span,
-                    kind: TokenKind::Literal(
-                        LitKind::Float(FloatKind::NotReserved, Some(exponent)),
-                        suffix,
-                    ),
+                    kind: TokenKind::Literal(LitKind::Float, suffix),
                 };
             }
             if let Some('.') = self.iter.peek() {
@@ -582,40 +579,24 @@ impl<'a> Lexer<'a> {
                     Some(v) if v == '.' || v == '_' || v.is_xid_start() => {
                         let suffix = self.skip_suffix();
                         let hi = self.iter.idx();
-                        let float_kind = match has_underscore {
-                            HasUnderscore::Yes => FloatKind::NotReserved,
-                            HasUnderscore::No => FloatKind::Reserved,
-                        };
                         return Token {
                             span: Span::new(lo, hi),
-                            kind: TokenKind::Literal(LitKind::Float(float_kind, None), suffix),
+                            kind: TokenKind::Literal(LitKind::Float, suffix),
                         };
                     }
                     Some(v) if v.is_ascii_digit() => {
-                        let has_underscore_rhs = self.skip_dec_digit();
                         let suffix = self.skip_suffix();
-                        let float_kind =
-                            match (suffix.is_some(), has_underscore, has_underscore_rhs) {
-                                (false, HasUnderscore::No, HasUnderscore::No) => {
-                                    FloatKind::Reserved
-                                }
-                                _ => FloatKind::NotReserved,
-                            };
                         let hi = self.iter.idx();
                         return Token {
                             span: Span::new(lo, hi),
-                            kind: TokenKind::Literal(LitKind::Float(float_kind, None), suffix),
+                            kind: TokenKind::Literal(LitKind::Float, suffix),
                         };
                     }
                     _ => {
-                        let float_kind = match kind.has_suffix() {
-                            true => FloatKind::NotReserved,
-                            false => FloatKind::Reserved,
-                        };
                         let hi = self.iter.idx();
                         return Token {
                             span: Span::new(lo, hi),
-                            kind: TokenKind::Literal(LitKind::Float(float_kind, None), None),
+                            kind: TokenKind::Literal(LitKind::Float, None),
                         };
                     }
                 }
@@ -638,36 +619,24 @@ impl<'a> Lexer<'a> {
                     'b' => {
                         self.iter.next();
                         self.skip_bin_digit();
-                        return TokenKind::Literal(
-                            LitKind::Integer(IntegerKind::Bin),
-                            self.skip_suffix(),
-                        );
+                        return TokenKind::Literal(LitKind::Integer, self.skip_suffix());
                     }
                     'o' => {
                         self.iter.next();
                         self.skip_oct_digit();
-                        return TokenKind::Literal(
-                            LitKind::Integer(IntegerKind::Oct),
-                            self.skip_suffix(),
-                        );
+                        return TokenKind::Literal(LitKind::Integer, self.skip_suffix());
                     }
                     'x' => {
                         self.iter.next();
                         self.skip_hex_digit();
-                        return TokenKind::Literal(
-                            LitKind::Integer(IntegerKind::Hex),
-                            self.skip_suffix(),
-                        );
+                        return TokenKind::Literal(LitKind::Integer, self.skip_suffix());
                     }
                     _ => {}
                 }
             }
         }
-        let has_underscore = self.skip_dec_digit();
-        TokenKind::Literal(
-            LitKind::Integer(IntegerKind::Dec(has_underscore)),
-            self.skip_suffix(),
-        )
+        self.skip_dec_digit();
+        TokenKind::Literal(LitKind::Integer, self.skip_suffix())
     }
 
     fn skip_dec_digit(&mut self) -> HasUnderscore {
@@ -1758,6 +1727,8 @@ impl TokenKind {
 
 #[derive(Debug, Clone, Copy, Hash, PartialEq, Eq)]
 pub enum LitKind {
+    /// true
+    Bool,
     /// 'a'
     Char,
     /// "abc"
@@ -1775,16 +1746,19 @@ pub enum LitKind {
     /// cr#"abc"#
     RawCString(u8),
     /// 1.0f32
-    Float(FloatKind, Option<Exponent>),
+    Float,
     /// 0u8
-    Integer(IntegerKind),
+    Integer,
     /// "malformed string
     MalformedString,
+    Err,
 }
 
 impl std::fmt::Display for LitKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            Self::Err => write!(f, "err"),
+            Self::Bool => write!(f, "bool"),
             Self::Char => write!(f, "character"),
             Self::String => write!(f, "string"),
             Self::RawString(hash_count) => write!(f, "raw string({} hashes)", hash_count),
@@ -1793,13 +1767,8 @@ impl std::fmt::Display for LitKind {
             Self::RawByteString(hash_count) => write!(f, "raw byte string({} hashes)", hash_count),
             Self::CString => write!(f, "c string"),
             Self::RawCString(hash_count) => write!(f, "raw c string({} hashes)", hash_count),
-            Self::Float(_, _) => write!(f, "float"),
-            Self::Integer(integer_kind) => match integer_kind {
-                IntegerKind::Dec(_) => write!(f, "decimal integer"),
-                IntegerKind::Oct => write!(f, "octal integer"),
-                IntegerKind::Hex => write!(f, "hexadecimal integer"),
-                IntegerKind::Bin => write!(f, "binary integer"),
-            },
+            Self::Float => write!(f, "float"),
+            Self::Integer => write!(f, "integer"),
             Self::MalformedString => write!(f, "malformed string"),
         }
     }

@@ -5,12 +5,12 @@ use jessie_span::Span;
 use crate::{
     TokenStream,
     ast::{
-        Block, Bound, Document, Expr, ExprKind, GenericArg, Ident, IntLit, Item, ItemKind,
-        Lifetime, Mutability, Pattern, Stmt, StmtKind, StrLit, TraitBoundModifier, Ty, TyKind,
-        TyPath, Unsafeness,
+        Block, Bound, Document, Expr, ExprKind, GenericArg, Ident, Item, ItemKind, Lifetime, Lit,
+        Mutability, Pattern, Stmt, StmtKind, TraitBoundModifier, Ty, TyKind, TyPath, Unsafeness,
     },
     diagnostics::{
-        ExpectedBound, ExpectedExpr, ExpectedItem, ExpectedPattern, ExpectedStmt, ExpectedType,
+        ExpectedBound, ExpectedExpr, ExpectedItem, ExpectedLit, ExpectedPattern, ExpectedStmt,
+        ExpectedType,
     },
 };
 
@@ -73,55 +73,6 @@ impl<'a> Parser<'a> {
         let hi = self.ts.peek().span.lo() - 1;
         let span = Span::new(lo, hi);
         Ty { kind, span, id }
-    }
-
-    fn parse_str_lit(&mut self) -> Option<StrLit> {
-        let peek = self.ts.peek();
-        if let TokenKind::Literal(litkind, suffix) = peek.kind {
-            match litkind {
-                jessie_rust_lex::LitKind::String => {
-                    self.ts.next();
-                    if let Some(suffix) = suffix {
-                        return Some(StrLit {
-                            span: peek.span,
-                            src: self.sess.sm.new_sym_from_span(peek.span),
-                            suffix: Some(self.sess.sm.new_sym_from_span(suffix.span())),
-                        });
-                    }
-                    return Some(StrLit {
-                        span: peek.span,
-                        src: self.sess.sm.new_sym_from_span(peek.span),
-                        suffix: None,
-                    });
-                }
-                _ => return None,
-            }
-        }
-        None
-    }
-    fn parse_int_lit(&mut self) -> Option<IntLit> {
-        let peek = self.ts.peek();
-        if let TokenKind::Literal(litkind, suffix) = peek.kind {
-            match litkind {
-                jessie_rust_lex::LitKind::Integer(_) => {
-                    self.ts.next();
-                    if let Some(suffix) = suffix {
-                        return Some(IntLit {
-                            span: peek.span,
-                            src: self.sess.sm.new_sym_from_span(peek.span),
-                            suffix: Some(self.sess.sm.new_sym_from_span(suffix.span())),
-                        });
-                    }
-                    return Some(IntLit {
-                        span: peek.span,
-                        src: self.sess.sm.new_sym_from_span(peek.span),
-                        suffix: None,
-                    });
-                }
-                _ => return None,
-            }
-        }
-        None
     }
 
     fn parse_fnptr_ty(&mut self) -> TyKind {
@@ -360,9 +311,9 @@ impl<'a> Parser<'a> {
             TokenKind::Colon => {
                 self.ts.next();
                 let ty = Box::new(self.parse_ty());
-                return Pattern::TyBinding(Box::new(pat), ty);
+                Pattern::TyBinding(Box::new(pat), ty)
             }
-            _ => return pat,
+            _ => pat,
         }
     }
 
@@ -562,6 +513,39 @@ impl<'a> Parser<'a> {
         TyPath { is_root, segments }
     }
 
+    fn parse_lit(&mut self) -> Lit {
+        let peek = self.ts.peek();
+        match peek.kind {
+            TokenKind::True | TokenKind::False => {
+                self.ts.next();
+                Lit {
+                    kind: jessie_rust_lex::LitKind::Bool,
+                    symbol: self.sess.sm.new_sym_from_span(peek.span),
+                    suffix: None,
+                }
+            }
+            TokenKind::Literal(litkind, suffix) => {
+                self.ts.next();
+                Lit {
+                    kind: litkind,
+                    symbol: self.sess.sm.new_sym_from_span(peek.span),
+                    suffix: suffix.map(|x| self.sess.sm.new_sym_from_span(x.span())),
+                }
+            }
+            e => {
+                self.sess.new_diag(ExpectedLit {
+                    found: e,
+                    span: peek.span,
+                });
+                Lit {
+                    kind: jessie_rust_lex::LitKind::Err,
+                    symbol: self.sess.sm.new_sym_from_span(peek.span),
+                    suffix: None,
+                }
+            }
+        }
+    }
+
     fn parse_lifetime(&mut self) -> Lifetime {
         let peek = self.ts.peek();
         match peek.kind {
@@ -599,30 +583,7 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_lit_expr(&mut self) -> ExprKind {
-        match self.ts.peek().kind {
-            TokenKind::Literal(litkind, _) => match litkind {
-                jessie_rust_lex::LitKind::Integer(_) => {
-                    ExprKind::Lit(crate::ast::Literal::Num(self.parse_int_lit().unwrap()))
-                }
-                jessie_rust_lex::LitKind::String => {
-                    ExprKind::Lit(crate::ast::Literal::Str(self.parse_str_lit().unwrap()))
-                }
-                _ => {
-                    self.sess.new_diag(ExpectedExpr {
-                        found: self.ts.peek().kind,
-                        span: self.ts.peek().span,
-                    });
-                    ExprKind::Err
-                }
-            },
-            _ => {
-                self.sess.new_diag(ExpectedExpr {
-                    found: self.ts.peek().kind,
-                    span: self.ts.peek().span,
-                });
-                ExprKind::Err
-            }
-        }
+        ExprKind::Lit(self.parse_lit())
     }
 
     fn parse_expr(&mut self) -> Expr {

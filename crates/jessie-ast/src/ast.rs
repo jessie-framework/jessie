@@ -1,4 +1,4 @@
-use jessie_span::{Span, Symbol};
+pub use jessie_span::{Span, Symbol};
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct NodeId {
@@ -144,20 +144,23 @@ pub struct Expr {
 
 #[derive(Debug, Clone)]
 pub enum ExprKind {
-    Lit(Literal),
+    Lit(Lit),
     Err,
 }
 
 #[derive(Debug, Clone)]
-pub enum Literal {
-    Str(StrLit),
-    Num(IntLit),
+pub struct Lit {
+    pub kind: LitKind,
+    pub symbol: Symbol,
+    pub suffix: Option<Symbol>,
 }
+
+pub use jessie_rust_lex::LitKind;
 
 #[derive(Debug, Clone)]
 pub struct IntLit {
     pub span: Span,
-    pub src: Symbol,
+    pub symbol: Symbol,
     pub suffix: Option<Symbol>,
 }
 #[derive(Debug, Clone)]
