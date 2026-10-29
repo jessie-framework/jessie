@@ -70,6 +70,7 @@ pub mod diagnostics {
             );
         }
     }
+
     pub struct ExpectedStmt {
         pub found: TokenKind,
         pub span: Span,
@@ -80,6 +81,20 @@ pub mod diagnostics {
             sess.new_err_sp(
                 self.span,
                 &format!("expected statement, found {}", self.found),
+            );
+        }
+    }
+
+    pub struct ExpectedLit {
+        pub found: TokenKind,
+        pub span: Span,
+    }
+
+    impl Diagnostic for ExpectedLit {
+        fn diag(self, sess: &mut jessie_session::Session) {
+            sess.new_err_sp(
+                self.span,
+                &format!("expected literal , found {}", self.found),
             );
         }
     }
